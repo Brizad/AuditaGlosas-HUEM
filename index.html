@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuditaGlosas HUEM</title>
+<meta name="description" content="Prototipo de validación previa de cuentas médicas antes de radicar ante las EPS">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: barra de acciones arriba, indicadores, gráfico por causal y tabla de facturas expandible; pestañas para reglas y datos */
+:root{
+  --bg:#f4f5f2; --surface:#ffffff; --ink:#1d2321; --muted:#5b6461; --line:#d7dbd6;
+  --accent:#1f6b5c; --accent-ink:#ffffff; --accent-soft:#e2efeb;
+  --ok:#2e7d4f; --ok-soft:#e3f2e8; --warn:#a15c07; --warn-soft:#fbefdc; --bad:#b3261e; --bad-soft:#fbe5e3;
+  --sans:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2220; --ink:#e6ebe8; --muted:#9aa5a1; --line:#2f3835;
+  --accent:#5fbfa8; --accent-ink:#0f1513; --accent-soft:#1f3530;
+  --ok:#6fcf97; --ok-soft:#1b3326; --warn:#f2b45b; --warn-soft:#3a2c17; --bad:#f28b82; --bad-soft:#3b1f1d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2220; --ink:#e6ebe8; --muted:#9aa5a1; --line:#2f3835;
+  --accent:#5fbfa8; --accent-ink:#0f1513; --accent-soft:#1f3530;
+  --ok:#6fcf97; --ok-soft:#1b3326; --warn:#f2b45b; --warn-soft:#3a2c17; --bad:#f28b82; --bad-soft:#3b1f1d; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-size:1.65rem;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-size:.8rem;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.sub{color:var(--muted);margin:4px 0 0;max-width:70ch}
+.badge{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:6px;padding:3px 8px;color:var(--muted);background:var(--surface)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font:inherit;font-weight:600;background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.tab:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.file{position:relative;overflow:hidden}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.status{color:var(--muted);font-size:.9rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kpi .l{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.kpi .v{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi.ok .v{color:var(--ok)} .kpi.bad .v{color:var(--bad)} .kpi.warn .v{color:var(--warn)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.panel h2{font-size:1rem;margin:0 0 10px}
+.hb{display:grid;grid-template-columns:150px minmax(0,1fr) 92px;gap:8px;align-items:center;margin:6px 0;font-size:.9rem}
+.hb .track{background:var(--bg);border-radius:4px;height:16px;overflow:hidden}
+.hb .fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.hb .n{font-variant-numeric:tabular-nums;text-align:right;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;background:var(--surface);position:sticky;top:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.mono{font-family:var(--mono);font-size:.85em}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.wait{background:var(--bg);color:var(--muted)}
+.g{display:inline-block;font-family:var(--mono);font-size:.72rem;font-weight:600;border-radius:4px;padding:1px 6px;margin-right:6px;border:1px solid var(--line)}
+tr.inv{cursor:pointer} tr.inv:hover td{background:var(--accent-soft)}
+tr.det td{background:var(--bg);padding:0}
+.finds{list-style:none;margin:0;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.finds li{border-left:4px solid var(--bad);background:var(--surface);padding:8px 10px;border-radius:0 6px 6px 0}
+.finds li.ok{border-color:var(--ok)}
+.finds .t{font-weight:600}
+.finds .d{color:var(--muted);font-size:.88rem}
+.rules td:last-child{width:90px}
+.switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem}
+.note{font-size:.82rem;color:var(--muted)}
+pre{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;max-height:460px;font-family:var(--mono);font-size:.78rem}
+.empty{color:var(--muted);text-align:center;padding:28px 12px}
+footer{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+@media (prefers-reduced-motion:reduce){.hb .fill{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1><small>Prototipo · Sprint 0</small>AuditaGlosas HUEM</h1>
+      <p class="sub">Validación previa de cuentas médicas: revisa soportes, codificación, tarifas y autorizaciones de cada factura <b>antes</b> de radicarla ante la EPS, según los grupos de causales del Manual Único de Devoluciones, Glosas y Respuestas (Res. 2284 de 2023).</p>
+    </div>
+    <span class="badge" id="ver">v0.1 · datos sintéticos</span>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-val" aria-selected="true" data-p="p-val">Validación</button>
+    <button class="tab" role="tab" id="t-rules" aria-selected="false" data-p="p-rules">Catálogo de reglas</button>
+    <button class="tab" role="tab" id="t-data" aria-selected="false" data-p="p-data">Datos del lote</button>
+    <button class="tab" role="tab" id="t-about" aria-selected="false" data-p="p-about">Acerca de</button>
+  </div>
+
+  <!-- ============ VALIDACIÓN ============ -->
+  <section id="p-val" role="tabpanel" style="display:flex;flex-direction:column;gap:16px">
+    <div class="bar">
+      <button class="btn" id="b-demo">1. Cargar lote de demostración</button>
+      <label class="btn file" for="f-json">Cargar archivo JSON<input type="file" id="f-json" accept=".json,application/json"></label>
+      <button class="btn primary" id="b-run" disabled>2. Validar antes de radicar</button>
+      <button class="btn" id="b-csv" disabled>Exportar reporte CSV</button>
+      <span class="status" id="st">Sin lote cargado.</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">Facturas analizadas</div><div class="v" id="k-n">—</div></div>
+      <div class="kpi ok"><div class="l">Aptas para radicar</div><div class="v" id="k-ok">—</div></div>
+      <div class="kpi bad"><div class="l">Con inconsistencias</div><div class="v" id="k-bad">—</div></div>
+      <div class="kpi warn"><div class="l">Valor en riesgo de glosa</div><div class="v" id="k-val">—</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel"><h2>Hallazgos por grupo de causal (Res. 2284)</h2><div id="ch-g"><div class="empty">Valide un lote para ver los hallazgos.</div></div></div>
+      <div class="panel"><h2>Facturas con inconsistencias por EPS</h2><div id="ch-e"><div class="empty">Valide un lote para ver la distribución.</div></div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Resultado por factura <span class="note">· haga clic en una fila para ver el detalle</span></h2>
+      <div class="tablewrap"><table id="tb">
+        <thead><tr><th>Factura</th><th>EPS</th><th>Usuario</th><th class="num">Valor</th><th class="num">Hallazgos</th><th>Estado</th></tr></thead>
+        <tbody><tr><td colspan="6" class="empty">Cargue el lote de demostración o un archivo JSON.</td></tr></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ============ REGLAS ============ -->
+  <section id="p-rules" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Catálogo de reglas de validación</h2>
+      <p class="note">Cada regla está trazada a un grupo de causales del Manual Único (Res. 2284 de 2023). Las reglas son configurables: desactive una y vuelva a validar para ver el efecto. Los códigos de regla son internos del prototipo.</p>
+      <div class="tablewrap"><table class="rules" id="tr"><thead><tr><th>Regla</th><th>Grupo de causal</th><th>Qué verifica</th><th>Activa</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ DATOS ============ -->
+  <section id="p-data" role="tabpanel" hidden>
+    <div class="grid2">
+      <div class="panel"><h2>Contratos y tarifas por EPS</h2><div class="tablewrap" id="tarifas"></div>
+        <p class="note">EPS, tarifas y códigos ilustrativos. No corresponden a contratos reales del HUEM.</p></div>
+      <div class="panel"><h2>Lote cargado (estructura tipo RIPS en JSON, Res. 2275 de 2023)</h2><pre id="raw">Sin lote cargado.</pre></div>
+    </div>
+  </section>
+
+  <!-- ============ ACERCA ============ -->
+  <section id="p-about" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Sobre este prototipo</h2>
+      <p>Prueba de concepto del proyecto <i>«Sistema de auditoría y control de glosas para el Hospital Universitario Erasmo Meoz en Cúcuta, 2026»</i> (Proyecto Integrador AR, Universidad de Pamplona). Demuestra la parte técnicamente más incierta del sistema: leer la factura y su RIPS en JSON y aplicar un catálogo de reglas configurable antes de la radicación.</p>
+      <ul>
+        <li><b>Incremento 1 – Soportes:</b> reglas SO-01 y AU-01.</li>
+        <li><b>Incremento 2 – Codificación:</b> reglas FA-01 a FA-04 (concordancia factura–RIPS y formato de códigos).</li>
+        <li><b>Incremento 3 – Tarifas:</b> reglas TA-01 y TA-02 (tarifas pactadas por EPS).</li>
+      </ul>
+      <p class="note">Todos los datos son sintéticos: no contiene información de pacientes reales (Ley 1581 de 2012). Equipo: Yarly Guerrero, Einer Alvear y Brayan Amado. Docente: Harvey Gamboa.</p>
+    </div>
+  </section>
+
+  <footer>AuditaGlosas HUEM · prototipo académico · los resultados no constituyen una auditoría oficial.</footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Datos de demostración (sintéticos)
+------------------------------------------------------------------ */
+const CONTRATOS = {
+  "EPS-ALFA":  { nombre: "EPS Alfa", tarifas: { "890201": 38000, "890301": 32000, "903841": 9500, "902210": 18000, "871121": 62000, "MED-0001": 450, "MED-0002": 1200 }, autorizacion: ["871121"] },
+  "EPS-BETA":  { nombre: "EPS Beta", tarifas: { "890201": 41000, "890301": 34000, "903841": 10200, "902210": 19500, "871121": 65000, "MED-0001": 480 }, autorizacion: ["871121", "902210"] },
+  "EPS-GAMMA": { nombre: "EPS Gamma", tarifas: { "890201": 36000, "903841": 9000, "902210": 17000, "871121": 60000, "MED-0001": 430, "MED-0002": 1100 }, autorizacion: [] }
+};
+const DESC = { "890201": "Consulta de primera vez por medicina general", "890301": "Consulta de control por medicina general", "903841": "Glucosa en suero", "902210": "Hemograma", "871121": "Radiografía de tórax", "MED-0001": "Acetaminofén 500 mg tableta", "MED-0002": "Amoxicilina 500 mg cápsula" };
+const TIPO = { "890201": "consulta", "890301": "consulta", "903841": "laboratorio", "902210": "laboratorio", "871121": "imagen", "MED-0001": "medicamento", "MED-0002": "medicamento" };
+const SOPORTE_REQ = { consulta: [], laboratorio: ["Resultado de laboratorio"], imagen: ["Lectura o informe del examen"], medicamento: ["Fórmula médica"] };
+
+function cons(cod, vr, aut) { return { codConsulta: cod, vrServicio: vr, numAutorizacion: aut || null }; }
+function proc(cod, vr, aut) { return { codProcedimiento: cod, vrServicio: vr, numAutorizacion: aut || null }; }
+function med(cod, cant, vu) { return { codTecnologiaSalud: cod, nomTecnologiaSalud: DESC[cod] || "", cantidadMedicamento: cant, vrUnitMedicamento: vu, vrServicio: cant * vu }; }
+function fac(num, eps, doc, servicios, soportes, opts = {}) {
+  const items = [];
+  (servicios.consultas || []).forEach(s => items.push({ codigo: s.codConsulta, cantidad: 1, valorUnitario: s.vrServicio }));
+  (servicios.procedimientos || []).forEach(s => items.push({ codigo: s.codProcedimiento, cantidad: 1, valorUnitario: s.vrServicio }));
+  (servicios.medicamentos || []).forEach(s => items.push({ codigo: s.codTecnologiaSalud, cantidad: s.cantidadMedicamento, valorUnitario: s.vrUnitMedicamento }));
+  const total = items.reduce((a, b) => a + b.cantidad * b.valorUnitario, 0);
+  const f = {
+    numFactura: num, eps, fechaExpedicion: "2026-06-1" + (num.slice(-1) % 9),
+    valorTotal: opts.valorTotal ?? total, items: opts.items ?? items, soportes,
+    rips: { numDocumentoIdObligado: "800000000", numFactura: opts.ripsNum ?? num, tipoNota: null, numNota: null,
+      usuarios: [{ tipoDocumentoIdentificacion: "CC", numDocumentoIdentificacion: doc, tipoUsuario: "01", servicios }] }
+  };
+  return f;
+}
+function lote() {
+  return [
+    fac("FV-1001", "EPS-ALFA", "9000000101", { consultas: [cons("890201", 38000)] }, []),
+    fac("FV-1002", "EPS-ALFA", "9000000102", { consultas: [cons("890201", 38000)], procedimientos: [proc("903841", 9500)] }, ["Resultado de laboratorio"]),
+    fac("FV-1003", "EPS-BETA", "9000000103", { consultas: [cons("890201", 41000)], procedimientos: [proc("871121", 65000)] }, []),                                   // falta lectura + falta autorización
+    fac("FV-1004", "EPS-BETA", "9000000104", { consultas: [cons("890301", 34000)], medicamentos: [med("MED-0001", 20, 480)] }, ["Fórmula médica"]),
+    fac("FV-1005", "EPS-GAMMA", "9000000105", { consultas: [cons("890201", 41000)] }, []),                                                                          // tarifa distinta (pactada 36.000)
+    fac("FV-1006", "EPS-GAMMA", "9000000106", { consultas: [cons("890301", 32000)] }, []),                                                                          // sin tarifa pactada
+    fac("FV-1007", "EPS-ALFA", "9000000107", { consultas: [cons("890201", 38000)], procedimientos: [proc("902210", 18000)] }, ["Resultado de laboratorio"],
+        { items: [{ codigo: "890201", cantidad: 1, valorUnitario: 38000 }, { codigo: "902212", cantidad: 1, valorUnitario: 18000 }], valorTotal: 56000 }),              // código facturado no está en RIPS
+    fac("FV-1008", "EPS-BETA", "9000000108", { consultas: [cons("890201", 41000)], procedimientos: [proc("902210", 19500, "AUT-55821")] }, ["Resultado de laboratorio"]),
+    fac("FV-1009", "EPS-ALFA", "9000000109", { consultas: [cons("890201", 38000)], medicamentos: [med("MED-0002", 21, 1200)] }, ["Fórmula médica"], { valorTotal: 65200 }), // total ≠ suma RIPS
+    fac("FV-1010", "EPS-GAMMA", "9000000110", { consultas: [cons("890201", 36000)], procedimientos: [proc("871121", 60000)] }, ["Lectura o informe del examen"]),
+    fac("FV-1011", "EPS-BETA", "9000000111", { consultas: [cons("89020", 41000)] }, []),                                                                             // formato de código inválido
+    fac("FV-1012", "EPS-ALFA", "9000000112", { consultas: [cons("890201", 38000)] }, [], { ripsNum: "FV-1021" })                                                     // RIPS de otra factura
+  ];
+}
+
+/* ------------------------------------------------------------------
+   Catálogo de reglas
+------------------------------------------------------------------ */
+const GRUPOS = { FA: "Facturación y codificación", TA: "Tarifas", SO: "Soportes", AU: "Autorizaciones" };
+const RULES = [
+  { id: "FA-01", g: "FA", txt: "El RIPS corresponde a la factura (mismo número de factura).", on: true },
+  { id: "FA-02", g: "FA", txt: "El valor total de la factura coincide con la suma de los servicios del RIPS.", on: true },
+  { id: "FA-03", g: "FA", txt: "Cada código facturado tiene su registro en el RIPS y viceversa.", on: true },
+  { id: "FA-04", g: "FA", txt: "Los códigos de procedimientos y consultas tienen formato válido (6 caracteres).", on: true },
+  { id: "TA-01", g: "TA", txt: "El valor unitario coincide con la tarifa pactada en el contrato de la EPS.", on: true },
+  { id: "TA-02", g: "TA", txt: "El servicio tiene tarifa pactada en el contrato de la EPS.", on: true },
+  { id: "SO-01", g: "SO", txt: "La factura incluye los soportes obligatorios según el tipo de servicio.", on: true },
+  { id: "AU-01", g: "AU", txt: "Los servicios que la EPS exige autorizar tienen número de autorización.", on: true }
+];
+const ruleOn = id => RULES.find(r => r.id === id).on;
+
+function ripsServicios(f) {
+  const out = [];
+  (f.rips?.usuarios || []).forEach(u => {
+    const s = u.servicios || {};
+    (s.consultas || []).forEach(x => out.push({ codigo: x.codConsulta, valor: x.vrServicio, cant: 1, vu: x.vrServicio, aut: x.numAutorizacion, kind: "cups" }));
+    (s.procedimientos || []).forEach(x => out.push({ codigo: x.codProcedimiento, valor: x.vrServicio, cant: 1, vu: x.vrServicio, aut: x.numAutorizacion, kind: "cups" }));
+    (s.medicamentos || []).forEach(x => out.push({ codigo: x.codTecnologiaSalud, valor: x.vrServicio, cant: x.cantidadMedicamento, vu: x.vrUnitMedicamento, aut: x.numAutorizacion || null, kind: "med" }));
+  });
+  return out;
+}
+
+function validar(f) {
+  const H = []; const add = (id, titulo, detalle, valor) => { if (ruleOn(id)) H.push({ id, g: RULES.find(r => r.id === id).g, titulo, detalle, valor }); };
+  const c = CONTRATOS[f.eps] || { nombre: f.eps, tarifas: {}, autorizacion: [] };
+  const serv = ripsServicios(f);
+  if (f.rips?.numFactura !== f.numFactura) add("FA-01", "El RIPS no corresponde a la factura", `La factura es ${f.numFactura} y el RIPS reporta ${f.rips?.numFactura || "(vacío)"}. Causaría la devolución de la cuenta.`, f.valorTotal);
+  const suma = serv.reduce((a, b) => a + b.valor, 0);
+  if (Math.abs(suma - f.valorTotal) > 0.5) add("FA-02", "Valor total distinto a la suma del RIPS", `Factura: ${cop(f.valorTotal)} · RIPS: ${cop(suma)} · diferencia ${cop(f.valorTotal - suma)}.`, Math.abs(f.valorTotal - suma));
+  const codF = f.items.map(i => i.codigo), codR = serv.map(s => s.codigo);
+  f.items.forEach(i => { if (!codR.includes(i.codigo)) add("FA-03", "Código facturado sin registro en el RIPS", `El código ${i.codigo} aparece en la factura pero no en el RIPS.`, i.cantidad * i.valorUnitario); });
+  serv.forEach(s => { if (!codF.includes(s.codigo)) add("FA-03", "Servicio del RIPS no facturado", `El código ${s.codigo} está en el RIPS pero no en la factura.`, s.valor); });
+  serv.forEach(s => {
+    if (s.kind === "cups" && !/^[0-9A-Z]{6}$/.test(String(s.codigo))) add("FA-04", "Código con formato inválido", `«${s.codigo}» no tiene 6 caracteres válidos.`, s.valor);
+    const t = c.tarifas[s.codigo];
+    if (t === undefined) { if (/^[0-9A-Z]{6}$/.test(String(s.codigo)) || s.kind === "med") add("TA-02", "Servicio sin tarifa pactada", `${s.codigo} (${DESC[s.codigo] || "sin descripción"}) no tiene tarifa en el contrato con ${c.nombre}.`, s.valor); }
+    else if (Math.abs(t - s.vu) > 0.5) add("TA-01", "Tarifa distinta a la pactada", `${s.codigo} (${DESC[s.codigo] || ""}): facturado ${cop(s.vu)}, pactado con ${c.nombre} ${cop(t)}.`, Math.abs(s.vu - t) * s.cant);
+    const req = SOPORTE_REQ[TIPO[s.codigo]] || [];
+    req.forEach(sp => { if (!(f.soportes || []).includes(sp)) add("SO-01", "Soporte obligatorio faltante", `${s.codigo} (${DESC[s.codigo] || ""}) requiere «${sp}».`, s.valor); });
+    if ((c.autorizacion || []).includes(s.codigo) && !s.aut) add("AU-01", "Falta número de autorización", `${c.nombre} exige autorización para ${s.codigo} (${DESC[s.codigo] || ""}).`, s.valor);
+  });
+  // valor en riesgo: no más que el total de la factura
+  const riesgo = Math.min(f.valorTotal, H.reduce((a, b) => a + (b.valor || 0), 0));
+  return { factura: f, hallazgos: H, riesgo };
+}
+
+/* ------------------------------------------------------------------
+   Interfaz
+------------------------------------------------------------------ */
+const $ = id => document.getElementById(id);
+const cop = n => "$" + Math.round(n).toLocaleString("es-CO");
+let LOTE = null, RES = null;
+
+function setLote(arr, origen) {
+  LOTE = arr; RES = null;
+  $("b-run").disabled = false; $("b-csv").disabled = true;
+  $("st").textContent = `${arr.length} facturas cargadas (${origen}). Listo para validar.`;
+  ["k-n", "k-ok", "k-bad", "k-val"].forEach(k => $(k).textContent = "—");
+  $("k-n").textContent = arr.length;
+  $("raw").textContent = JSON.stringify(arr, null, 2);
+  const tb = $("tb").tBodies[0];
+  tb.innerHTML = arr.map(f => `<tr><td class="mono">${f.numFactura}</td><td>${(CONTRATOS[f.eps] || {}).nombre || f.eps}</td><td class="mono">${f.rips?.usuarios?.[0]?.numDocumentoIdentificacion || ""}</td><td class="num">${cop(f.valorTotal)}</td><td class="num">—</td><td><span class="pill wait">Sin validar</span></td></tr>`).join("");
+  $("ch-g").innerHTML = $("ch-e").innerHTML = '<div class="empty">Pulse «Validar antes de radicar».</div>';
+}
+
+function run() {
+  if (!LOTE) return;
+  RES = LOTE.map(validar);
+  const bad = RES.filter(r => r.hallazgos.length), ok = RES.length - bad.length;
+  $("k-n").textContent = RES.length; $("k-ok").textContent = ok; $("k-bad").textContent = bad.length;
+  $("k-val").textContent = cop(RES.reduce((a, r) => a + r.riesgo, 0));
+  $("st").textContent = `Validación terminada: ${ok} de ${RES.length} facturas aptas (${Math.round(100 * ok / RES.length)} %).`;
+  $("b-csv").disabled = false;
+  // por grupo
+  const cg = {}; Object.keys(GRUPOS).forEach(g => cg[g] = 0);
+  RES.forEach(r => r.hallazgos.forEach(h => cg[h.g]++));
+  bars("ch-g", Object.entries(cg).map(([g, n]) => [`${g} · ${GRUPOS[g]}`, n]), "hallazgos");
+  const ce = {}; Object.keys(CONTRATOS).forEach(e => ce[e] = [0, 0]);
+  RES.forEach(r => { const e = r.factura.eps; ce[e] = ce[e] || [0, 0]; ce[e][1]++; if (r.hallazgos.length) ce[e][0]++; });
+  bars("ch-e", Object.entries(ce).map(([e, [b, t]]) => [(CONTRATOS[e] || {}).nombre || e, b, t]), "facturas");
+  // tabla
+  const tb = $("tb").tBodies[0]; tb.innerHTML = "";
+  RES.forEach((r, i) => {
+    const f = r.factura, n = r.hallazgos.length;
+    const tr = document.createElement("tr"); tr.className = "inv"; tr.tabIndex = 0; tr.id = "row-" + i;
+    tr.innerHTML = `<td class="mono">${f.numFactura}</td><td>${(CONTRATOS[f.eps] || {}).nombre || f.eps}</td><td class="mono">${f.rips?.usuarios?.[0]?.numDocumentoIdentificacion || ""}</td><td class="num">${cop(f.valorTotal)}</td><td class="num">${n}</td><td>${n ? '<span class="pill bad">Corregir antes de radicar</span>' : '<span class="pill ok">Apta para radicar</span>'}</td>`;
+    const det = document.createElement("tr"); det.className = "det"; det.hidden = true;
+    det.innerHTML = `<td colspan="6"><ul class="finds">${n ? r.hallazgos.map(h => `<li><div class="t"><span class="g">${h.id}</span>${h.titulo} <span class="note">· ${GRUPOS[h.g]} · en riesgo ${cop(h.valor || 0)}</span></div><div class="d">${h.detalle}</div></li>`).join("") : '<li class="ok"><div class="t">Sin inconsistencias</div><div class="d">La factura cumple todas las reglas activas del catálogo.</div></li>'}</ul></td>`;
+    const tog = () => det.hidden = !det.hidden;
+    tr.addEventListener("click", tog); tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tog(); } });
+    tb.append(tr, det);
+  });
+}
+
+function bars(id, rows, unit) {
+  const max = Math.max(1, ...rows.map(r => r[2] ?? r[1]));
+  $(id).innerHTML = rows.map(r => {
+    const v = r[1], t = r[2];
+    return `<div class="hb"><span>${r[0]}</span><div class="track"><div class="fill" style="width:${100 * v / max}%"></div></div><span class="n">${t !== undefined ? `${v} de ${t}` : `${v} ${unit}`}</span></div>`;
+  }).join("");
+}
+
+function csv() {
+  if (!RES) return;
+  const rows = [["factura", "eps", "estado", "regla", "grupo", "hallazgo", "detalle", "valor_en_riesgo"]];
+  RES.forEach(r => {
+    const f = r.factura;
+    if (!r.hallazgos.length) rows.push([f.numFactura, f.eps, "Apta", "", "", "", "", 0]);
+    r.hallazgos.forEach(h => rows.push([f.numFactura, f.eps, "Corregir", h.id, GRUPOS[h.g], h.titulo, h.detalle, Math.round(h.valor || 0)]));
+  });
+  const text = rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(";")).join("\n");
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + text], { type: "text/csv;charset=utf-8" }));
+    a.download = "reporte_validacion.csv"; document.body.append(a); a.click(); a.remove();
+  } catch (e) {}
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => $("st").textContent = "Reporte generado (también se copió al portapapeles).").catch(() => {});
+}
+
+function renderRules() {
+  $("tr").tBodies[0].innerHTML = RULES.map(r => `<tr><td><code>${r.id}</code></td><td>${GRUPOS[r.g]}</td><td>${r.txt}</td><td><label class="switch"><input type="checkbox" id="r-${r.id}" ${r.on ? "checked" : ""}> ${r.on ? "Sí" : "No"}</label></td></tr>`).join("");
+  RULES.forEach(r => $("r-" + r.id).addEventListener("change", e => { r.on = e.target.checked; renderRules(); if (RES) run(); }));
+}
+function renderTarifas() {
+  const cods = Object.keys(DESC);
+  $("tarifas").innerHTML = `<table><thead><tr><th>Código</th><th>Servicio</th>${Object.values(CONTRATOS).map(c => `<th class="num">${c.nombre}</th>`).join("")}</tr></thead><tbody>${cods.map(k => `<tr><td class="mono">${k}</td><td>${DESC[k]}</td>${Object.values(CONTRATOS).map(c => `<td class="num">${c.tarifas[k] !== undefined ? cop(c.tarifas[k]) + (c.autorizacion.includes(k) ? " *" : "") : "—"}</td>`).join("")}</tr>`).join("")}</tbody></table><p class="note">* Requiere autorización de la EPS.</p>`;
+}
+
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => { x.setAttribute("aria-selected", x === t); $(x.dataset.p).hidden = x !== t; });
+  $("p-val").style.display = t.dataset.p === "p-val" ? "flex" : "none";
+}));
+$("b-demo").addEventListener("click", () => setLote(lote(), "lote de demostración"));
+$("b-run").addEventListener("click", run);
+$("b-csv").addEventListener("click", csv);
+$("f-json").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const rd = new FileReader();
+  rd.onload = () => { try { const j = JSON.parse(rd.result); setLote(Array.isArray(j) ? j : [j], file.name); } catch (err) { $("st").textContent = "El archivo no es un JSON válido: " + err.message; } };
+  rd.readAsText(file);
+});
+renderRules(); renderTarifas();
+</script>
+
+</body>
+</html>
