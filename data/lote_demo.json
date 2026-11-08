@@ -1,0 +1,534 @@
+[
+  {
+    "numFactura": "FV-1001",
+    "eps": "EPS-ALFA",
+    "fechaExpedicion": "2026-06-11",
+    "valorTotal": 38000,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 38000
+      }
+    ],
+    "soportes": [],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1001",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000101",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 38000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1002",
+    "eps": "EPS-ALFA",
+    "fechaExpedicion": "2026-06-12",
+    "valorTotal": 47500,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 38000
+      },
+      {
+        "codigo": "903841",
+        "cantidad": 1,
+        "valorUnitario": 9500
+      }
+    ],
+    "soportes": [
+      "Resultado de laboratorio"
+    ],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1002",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000102",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 38000,
+                "numAutorizacion": null
+              }
+            ],
+            "procedimientos": [
+              {
+                "codProcedimiento": "903841",
+                "vrServicio": 9500,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1003",
+    "eps": "EPS-BETA",
+    "fechaExpedicion": "2026-06-13",
+    "valorTotal": 106000,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 41000
+      },
+      {
+        "codigo": "871121",
+        "cantidad": 1,
+        "valorUnitario": 65000
+      }
+    ],
+    "soportes": [],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1003",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000103",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 41000,
+                "numAutorizacion": null
+              }
+            ],
+            "procedimientos": [
+              {
+                "codProcedimiento": "871121",
+                "vrServicio": 65000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1004",
+    "eps": "EPS-BETA",
+    "fechaExpedicion": "2026-06-14",
+    "valorTotal": 43600,
+    "items": [
+      {
+        "codigo": "890301",
+        "cantidad": 1,
+        "valorUnitario": 34000
+      },
+      {
+        "codigo": "MED-0001",
+        "cantidad": 20,
+        "valorUnitario": 480
+      }
+    ],
+    "soportes": [
+      "Fórmula médica"
+    ],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1004",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000104",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890301",
+                "vrServicio": 34000,
+                "numAutorizacion": null
+              }
+            ],
+            "medicamentos": [
+              {
+                "codTecnologiaSalud": "MED-0001",
+                "nomTecnologiaSalud": "Acetaminofén 500 mg tableta",
+                "cantidadMedicamento": 20,
+                "vrUnitMedicamento": 480,
+                "vrServicio": 9600
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1005",
+    "eps": "EPS-GAMMA",
+    "fechaExpedicion": "2026-06-15",
+    "valorTotal": 41000,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 41000
+      }
+    ],
+    "soportes": [],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1005",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000105",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 41000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1006",
+    "eps": "EPS-GAMMA",
+    "fechaExpedicion": "2026-06-16",
+    "valorTotal": 32000,
+    "items": [
+      {
+        "codigo": "890301",
+        "cantidad": 1,
+        "valorUnitario": 32000
+      }
+    ],
+    "soportes": [],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1006",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000106",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890301",
+                "vrServicio": 32000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1007",
+    "eps": "EPS-ALFA",
+    "fechaExpedicion": "2026-06-17",
+    "valorTotal": 56000,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 38000
+      },
+      {
+        "codigo": "902212",
+        "cantidad": 1,
+        "valorUnitario": 18000
+      }
+    ],
+    "soportes": [
+      "Resultado de laboratorio"
+    ],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1007",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000107",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 38000,
+                "numAutorizacion": null
+              }
+            ],
+            "procedimientos": [
+              {
+                "codProcedimiento": "902210",
+                "vrServicio": 18000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1008",
+    "eps": "EPS-BETA",
+    "fechaExpedicion": "2026-06-18",
+    "valorTotal": 60500,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 41000
+      },
+      {
+        "codigo": "902210",
+        "cantidad": 1,
+        "valorUnitario": 19500
+      }
+    ],
+    "soportes": [
+      "Resultado de laboratorio"
+    ],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1008",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000108",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 41000,
+                "numAutorizacion": null
+              }
+            ],
+            "procedimientos": [
+              {
+                "codProcedimiento": "902210",
+                "vrServicio": 19500,
+                "numAutorizacion": "AUT-55821"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1009",
+    "eps": "EPS-ALFA",
+    "fechaExpedicion": "2026-06-10",
+    "valorTotal": 65200,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 38000
+      },
+      {
+        "codigo": "MED-0002",
+        "cantidad": 21,
+        "valorUnitario": 1200
+      }
+    ],
+    "soportes": [
+      "Fórmula médica"
+    ],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1009",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000109",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 38000,
+                "numAutorizacion": null
+              }
+            ],
+            "medicamentos": [
+              {
+                "codTecnologiaSalud": "MED-0002",
+                "nomTecnologiaSalud": "Amoxicilina 500 mg cápsula",
+                "cantidadMedicamento": 21,
+                "vrUnitMedicamento": 1200,
+                "vrServicio": 25200
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1010",
+    "eps": "EPS-GAMMA",
+    "fechaExpedicion": "2026-06-10",
+    "valorTotal": 96000,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 36000
+      },
+      {
+        "codigo": "871121",
+        "cantidad": 1,
+        "valorUnitario": 60000
+      }
+    ],
+    "soportes": [
+      "Lectura o informe del examen"
+    ],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1010",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000110",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 36000,
+                "numAutorizacion": null
+              }
+            ],
+            "procedimientos": [
+              {
+                "codProcedimiento": "871121",
+                "vrServicio": 60000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1011",
+    "eps": "EPS-BETA",
+    "fechaExpedicion": "2026-06-11",
+    "valorTotal": 41000,
+    "items": [
+      {
+        "codigo": "89020",
+        "cantidad": 1,
+        "valorUnitario": 41000
+      }
+    ],
+    "soportes": [],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1011",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000111",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "89020",
+                "vrServicio": 41000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "numFactura": "FV-1012",
+    "eps": "EPS-ALFA",
+    "fechaExpedicion": "2026-06-12",
+    "valorTotal": 38000,
+    "items": [
+      {
+        "codigo": "890201",
+        "cantidad": 1,
+        "valorUnitario": 38000
+      }
+    ],
+    "soportes": [],
+    "rips": {
+      "numDocumentoIdObligado": "800000000",
+      "numFactura": "FV-1021",
+      "tipoNota": null,
+      "numNota": null,
+      "usuarios": [
+        {
+          "tipoDocumentoIdentificacion": "CC",
+          "numDocumentoIdentificacion": "9000000112",
+          "tipoUsuario": "01",
+          "servicios": {
+            "consultas": [
+              {
+                "codConsulta": "890201",
+                "vrServicio": 38000,
+                "numAutorizacion": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
