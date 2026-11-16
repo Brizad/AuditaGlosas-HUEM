@@ -326,11 +326,18 @@ Todos empiezan por `/api`. La documentación interactiva se genera sola en **`/d
 | PUT, DELETE | `/api/eps/{codigo}/tarifas/{codigo_servicio}` | Edita o elimina una tarifa | HU-04 |
 | GET, POST | `/api/eps/{codigo}/autorizaciones` | Lista o agrega servicios que exigen autorización | HU-02 |
 | DELETE | `/api/eps/{codigo}/autorizaciones/{codigo_servicio}` | Quita la exigencia de autorización | HU-02 |
+| GET | `/api/catalogo` | Catálogo de servicios y soportes obligatorios por tipo | HU-02 |
+| PUT, DELETE | `/api/catalogo/servicios/{codigo_servicio}` | Crea, actualiza o quita un servicio del catálogo | HU-02 |
 | GET | `/api/indicadores` | Indicadores generales para la página de inicio | HU-05 |
 | GET | `/api/indicadores/glosas` | Porcentaje de facturas glosadas por periodo y por causal | HU-07 |
 | POST | `/api/indicadores/prueba-z` | Prueba z de diferencia de proporciones (línea base vs. piloto) | HU-07 |
 
-Los reportes aceptan filtros opcionales por lote (`lote_id`) y por periodo (`periodo=AAAA-MM`).
+Los reportes aceptan filtros opcionales por lote (`lote_id`), por periodo (`periodo=AAAA-MM`) y por tipo de lote
+(`tipo=general|linea_base|piloto`).
+
+**Forma de los errores.** Todos responden `{"detail": "mensaje"}`. Cuando hay varios problemas (por ejemplo, un
+lote mal formado) se agrega la lista `errores`, con un mensaje por problema y la ubicación exacta:
+`Factura n.º 4 (FV-1004) → valorTotal: falta este campo obligatorio.`
 
 ## 7. Decisiones de diseño y por qué
 
