@@ -132,15 +132,15 @@ def eliminar_lote(sesion: Session, lote: Lote) -> None:
 
 
 @dataclass(frozen=True)
-class ResumenLote:
-    """Las cifras que se muestran en las tarjetas de resultados."""
+class ResumenFacturas:
+    """Las cifras que se muestran en las tarjetas: cuántas facturas hay y en qué estado."""
 
-    total_facturas: int
-    aptas: int
-    con_inconsistencias: int
-    sin_validar: int
-    valor_facturado: float
-    valor_en_riesgo: float
+    total_facturas: int = 0
+    aptas: int = 0
+    con_inconsistencias: int = 0
+    sin_validar: int = 0
+    valor_facturado: float = 0.0
+    valor_en_riesgo: float = 0.0
 
     @property
     def porcentaje_aptas(self) -> float:
@@ -148,24 +148,53 @@ class ResumenLote:
         validadas = self.aptas + self.con_inconsistencias
         return round(100 * self.aptas / validadas, 1) if validadas else 0.0
 
+    @property
+    def porcentaje_con_inconsistencias(self) -> float:
+        """Porcentaje de facturas con inconsistencias sobre las ya validadas."""
+        validadas = self.aptas + self.con_inconsistencias
+        return round(100 * self.con_inconsistencias / validadas, 1) if validadas else 0.0
 
-def resumir_lote(sesion: Session, lote_id: int) -> ResumenLote:
-    """Cuenta las facturas del lote por estado y suma sus valores (una sola consulta)."""
 
-    def contar_estado(estado: str):
-        return func.coalesce(func.sum(case((Factura.estado == estado, 1), else_=0)), 0)
+def _contar_estado(estado: str):
+    """Columna SQL que cuenta las facturas que están en un estado."""
+    return func.coalesce(func.sum(case((Factura.estado == estado, 1), else_=0)), 0)
 
-    fila = sesion.execute(
-        select(
-            func.count(Factura.id),
-            contar_estado(ESTADO_APTA),
-            contar_estado(ESTADO_CON_INCONSISTENCIAS),
-            contar_estado(ESTADO_SIN_VALIDAR),
-            func.coalesce(func.sum(Factura.valor_total), 0),
-            func.coalesce(func.sum(Factura.valor_en_riesgo), 0),
-        ).where(Factura.lote_id == lote_id)
-    ).one()
-    return ResumenLote(
-        total_facturas=fila[0], aptas=int(fila[1]), con_inconsistencias=int(fila[2]), sin_validar=int(fila[3]),
-        valor_facturado=float(fila[4]), valor_en_riesgo=float(fila[5]),
+
+def columnas_de_resumen() -> list:
+    """Columnas SQL con las que se arma un `ResumenFacturas` (se reutilizan en los reportes)."""
+    return [
+        func.count(Factura.id),
+        _contar_estado(ESTADO_APTA),
+        _contar_estado(ESTADO_CON_INCONSISTENCIAS),
+        _contar_estado(ESTADO_SIN_VALIDAR),
+        func.coalesce(func.sum(Factura.valor_total), 0),
+        func.coalesce(func.sum(Factura.valor_en_riesgo), 0),
+    ]
+
+
+def fila_a_resumen(fila) -> ResumenFacturas:
+    """Convierte el resultado de `columnas_de_resumen()` en un `ResumenFacturas`."""
+    return ResumenFacturas(
+        total_facturas=int(fila[0]), aptas=int(fila[1]), con_inconsistencias=int(fila[2]),
+        sin_validar=int(fila[3]), valor_facturado=float(fila[4]), valor_en_riesgo=float(fila[5]),
     )
+
+
+def resumir_lotes(sesion: Session, ids_lotes: list[int]) -> dict[int, ResumenFacturas]:
+    """Resume varios lotes con una sola consulta. Devuelve id del lote -> resumen."""
+    resumenes = {id_lote: ResumenFacturas() for id_lote in ids_lotes}
+    if not ids_lotes:
+        return resumenes
+    consulta = (
+        select(Factura.lote_id, *columnas_de_resumen())
+        .where(Factura.lote_id.in_(ids_lotes))
+        .group_by(Factura.lote_id)
+    )
+    for fila in sesion.execute(consulta):
+        resumenes[fila[0]] = fila_a_resumen(fila[1:])
+    return resumenes
+
+
+def resumir_lote(sesion: Session, lote_id: int) -> ResumenFacturas:
+    """Cuenta las facturas de un lote por estado y suma sus valores."""
+    return resumir_lotes(sesion, [lote_id])[lote_id]
