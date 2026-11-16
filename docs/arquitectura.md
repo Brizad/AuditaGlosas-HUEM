@@ -125,7 +125,6 @@ erDiagram
         int id PK
         string codigo UK "EPS-ALFA"
         string nombre
-        bool activa
     }
     TARIFAS {
         int id PK
