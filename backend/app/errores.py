@@ -23,6 +23,7 @@ MENSAJES = {
     "float_parsing": "debe ser un número",
     "int_type": "debe ser un número entero",
     "int_parsing": "debe ser un número entero",
+    "int_from_float": "debe ser un número entero (sin decimales)",
     "finite_number": "debe ser un número válido",
     "bool_type": "debe ser verdadero o falso",
     "list_type": "debe ser una lista [ ]",

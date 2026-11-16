@@ -4,7 +4,7 @@ FastAPI usa estas clases para dos cosas: garantizar que la respuesta siempre
 tenga los mismos campos y mostrarlos en la documentación de `/docs`.
 """
 from datetime import date, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, StringConstraints
 
@@ -227,3 +227,86 @@ class IndicadoresSalida(BaseModel):
     resumen: ResumenSalida
     hallazgos_por_grupo: list[FilaCausalSalida]
     ultimos_lotes: list[LoteSalida]
+
+
+# --- Línea base y piloto (HU-07) -------------------------------------------------
+class CifrasGlosaSalida(BaseModel):
+    validadas: int = Field(description="Facturas ya validadas (aptas + con inconsistencias).")
+    glosadas: int = Field(description="Facturas con al menos una inconsistencia.")
+    porcentaje_glosadas: float
+    valor_facturado: float
+    valor_en_riesgo: float
+
+
+class GlosasPorPeriodoSalida(CifrasGlosaSalida):
+    periodo: str = Field(description="Mes en formato AAAA-MM.")
+
+
+class GlosasPorTipoSalida(CifrasGlosaSalida):
+    tipo: str = Field(description="general, linea_base o piloto.")
+    lotes: int
+
+
+class GlosasPorReglaSalida(BaseModel):
+    codigo: str
+    nombre: str
+    facturas_afectadas: int
+    porcentaje_facturas: float
+
+
+class GlosasPorCausalSalida(BaseModel):
+    grupo: str
+    nombre_grupo: str
+    facturas_afectadas: int
+    porcentaje_facturas: float = Field(description="Sobre las facturas validadas. No suman 100 entre causales.")
+    reglas: list[GlosasPorReglaSalida]
+
+
+class IndicadorGlosasSalida(BaseModel):
+    total: CifrasGlosaSalida
+    por_periodo: list[GlosasPorPeriodoSalida]
+    por_causal: list[GlosasPorCausalSalida]
+    por_tipo: list[GlosasPorTipoSalida] = Field(description="Siempre de todos los lotes (no aplica el filtro).")
+
+
+class GrupoPruebaZ(BaseModel):
+    """Cifras agregadas de un grupo (nunca datos de pacientes)."""
+
+    total_facturas: Annotated[int, Field(gt=0, le=10_000_000)]
+    facturas_glosadas: Annotated[int, Field(ge=0, le=10_000_000)]
+
+
+class PruebaZEntrada(BaseModel):
+    linea_base: GrupoPruebaZ | None = Field(
+        default=None, description="Si no se envía, se toman los lotes de tipo «linea_base» ya validados.")
+    piloto: GrupoPruebaZ | None = Field(
+        default=None, description="Si no se envía, se toman los lotes de tipo «piloto» ya validados.")
+    alfa: Annotated[float, Field(gt=0, lt=1, allow_inf_nan=False)] = 0.05
+    hipotesis: Literal["reduce", "diferente"] = Field(
+        default="reduce", description="reduce: el piloto baja la proporción (una cola). diferente: dos colas.")
+
+
+class PruebaZSalida(BaseModel):
+    total_linea_base: int
+    glosadas_linea_base: int
+    proporcion_linea_base: float
+    origen_linea_base: str = Field(description="«lotes» si salió de los lotes cargados, «manual» si se digitó.")
+    total_piloto: int
+    glosadas_piloto: int
+    proporcion_piloto: float
+    origen_piloto: str
+    diferencia: float = Field(description="Proporción de la línea base menos la del piloto.")
+    proporcion_combinada: float
+    error_estandar: float
+    z: float
+    valor_p: float
+    alfa: float
+    hipotesis: str
+    valor_critico: float
+    se_rechaza_h0: bool
+    intervalo_inferior: float
+    intervalo_superior: float
+    nivel_confianza: float
+    supuestos_cumplidos: bool
+    interpretacion: str
+    advertencias: list[str]
