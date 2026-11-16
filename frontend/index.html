@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inicio · AuditaGlosas HUEM</title>
+  <meta name="description" content="Validación previa de facturas antes de radicarlas ante la EPS.">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="inicio">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <div class="titulo-pagina">
+      <div>
+        <h1>Control de glosas antes de radicar</h1>
+        <p>Cada factura se compara con su RIPS, sus soportes y las tarifas pactadas con la EPS, según las causales
+          de la Resolución 2284 de 2023. Aquí está el resumen de todos los lotes cargados.</p>
+      </div>
+      <div class="acciones">
+        <a class="boton primario" href="/carga">Cargar un lote</a>
+      </div>
+    </div>
+
+    <!-- Indicadores principales -->
+    <section class="kpis" aria-label="Indicadores generales">
+      <div class="kpi"><div class="rotulo">Facturas validadas</div><div class="valor" id="k-validadas">—</div><div class="nota" id="k-validadas-nota">&nbsp;</div></div>
+      <div class="kpi ok"><div class="rotulo">Aptas para radicar</div><div class="valor" id="k-aptas">—</div><div class="nota" id="k-aptas-nota">&nbsp;</div></div>
+      <div class="kpi mal"><div class="rotulo">Con inconsistencias</div><div class="valor" id="k-malas">—</div><div class="nota" id="k-malas-nota">&nbsp;</div></div>
+      <div class="kpi rojo"><div class="rotulo">Valor en riesgo de glosa</div><div class="valor" id="k-riesgo">—</div><div class="nota" id="k-riesgo-nota">&nbsp;</div></div>
+    </section>
+
+    <div class="tarjeta minis" id="minis" aria-label="Configuración del sistema"></div>
+
+    <div class="rejilla-2">
+      <section class="tarjeta">
+        <h2>Estado de las facturas</h2>
+        <p class="apoyo">Todas las facturas cargadas, según el resultado de su última validación.</p>
+        <div id="g-estados"></div>
+      </section>
+      <section class="tarjeta">
+        <h2>Hallazgos por grupo de causal</h2>
+        <p class="apoyo">Cantidad de inconsistencias encontradas en cada grupo de la Res. 2284 de 2023.</p>
+        <div id="g-causales"></div>
+      </section>
+    </div>
+
+    <section class="tarjeta">
+      <div class="cabecera-tarjeta">
+        <h2>Últimos lotes</h2>
+        <a href="/carga">Ver todos los lotes</a>
+      </div>
+      <div id="lotes"></div>
+    </section>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/inicio.js"></script>
+</body>
+</html>
