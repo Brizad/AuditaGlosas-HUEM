@@ -25,7 +25,10 @@ AuditaGlosas-HUEM/
 ├── data/                       Datos sintéticos de prueba
 │   ├── contratos_tarifas.json      Tarifas pactadas y autorizaciones de 3 EPS
 │   ├── catalogo_servicios.json     Descripción y tipo de cada servicio; soportes obligatorios por tipo
-│   └── lote_demo.json              12 facturas con su RIPS
+│   ├── lote_demo.json              12 facturas con su RIPS
+│   ├── lote_linea_base_200.json    200 facturas generadas, 40 % con errores sembrados
+│   ├── lote_piloto_200.json        200 facturas generadas, 15 % con errores sembrados
+│   └── *_esperado.json             Qué reglas debe disparar cada factura generada
 ├── docs/                       Documentación (plan, bitácora, arquitectura, manual)
 ├── frontend/                   Páginas web que sirve FastAPI
 │   ├── *.html                      Una página por pantalla
@@ -351,7 +354,115 @@ lote mal formado) se agrega la lista `errores`, con un mensaje por problema y la
 | Errores de estructura vs. hallazgos | Un archivo mal formado se **rechaza** al cargar; una factura con un dato incorrecto se **carga** y la regla lo reporta |
 | Revalidar borra y recalcula los hallazgos | El resultado siempre corresponde a las reglas activas en ese momento |
 
-## 8. Limitaciones conocidas y trabajo futuro
+## 8. Frontend
+
+Cada pantalla es un archivo HTML casi vacío más un archivo JavaScript que pide los datos a la API y dibuja la
+página. FastAPI sirve las páginas (`rutas/paginas.py`) y los archivos de `frontend/` bajo `/static`.
+
+| Dirección | Archivos | Qué muestra | Historia |
+|---|---|---|---|
+| `/` | `index.html`, `js/inicio.js` | Indicadores generales y últimos lotes | HU-05 |
+| `/carga` | `carga.html`, `js/carga.js` | Subir un lote y lista de lotes | HU-01 |
+| `/resultados` | `resultados.html`, `js/resultados.js` | Tarjetas, gráficas y facturas de un lote | HU-05 |
+| `/factura` | `factura.html`, `js/factura.js` | Hallazgos de una factura, factura contra RIPS | HU-05 |
+| `/reportes` | `reportes.html`, `js/reportes.js` | Por causal y por EPS; exportar CSV | HU-05 |
+| `/linea-base` | `linea-base.html`, `js/linea-base.js` | Indicador de glosas y prueba z | HU-07 |
+| `/reglas` | `reglas.html`, `js/reglas.js` | Interruptores de las reglas | HU-06 |
+| `/contratos` | `contratos.html`, `js/contratos.js` | EPS, tarifas, autorizaciones y catálogo | HU-02, HU-04 |
+
+Archivos compartidos: `js/comun.js` (llamadas a la API, creación de elementos, formatos, menú, avisos),
+`js/graficas.js` (barras, barra segmentada y columnas hechas con HTML, CSS y SVG), `js/lotes.js` (tabla de lotes) y
+`css/estilos.css`.
+
+**Gráficas.** No se usa ninguna librería. El verde azulado de «aptas» y el rojo de «con inconsistencias» se
+eligieron para que también los distingan las personas con daltonismo, y nunca van solos: cada gráfica lleva las
+cifras escritas, una leyenda y una tabla con los mismos datos.
+
+## 9. Seguridad y protección de datos
+
+| Riesgo | Cómo se atiende | Dónde |
+|---|---|---|
+| Guardar datos de pacientes (Ley 1581 de 2012) | Los esquemas de entrada descartan todo campo que no usan (`extra="ignore"`); del usuario del RIPS solo queda su posición. Una prueba recorre toda la base buscando documentos | `esquemas.py`, `test_base_datos.py`, `test_generador.py` |
+| Devolver datos sensibles en un error | Los mensajes de error dicen la ubicación y el problema, nunca repiten el valor recibido | `errores.py` |
+| Código malicioso dentro de un lote (XSS) | El frontend nunca usa `innerHTML`: todo dato se escribe como texto con la función `h()`. Además el servidor envía una política de contenido (CSP) que solo permite scripts y estilos propios | `js/comun.js`, `principal.py`, `test_paginas.py` |
+| Fórmulas maliciosas al abrir el CSV en Excel | Las celdas que empiezan por `=`, `+`, `-` o `@` se exportan con un apóstrofo delante | `servicios/reportes.py` |
+| Inyección SQL | Todas las consultas pasan por SQLAlchemy con parámetros; no se arma SQL con texto | `servicios/` |
+| Archivos enormes | Máximo 20 MB por petición y 5.000 facturas por lote | `principal.py`, `esquemas.py` |
+| Que otra página incruste el sistema | Cabeceras `X-Frame-Options: DENY` y `frame-ancestors 'none'` | `principal.py` |
+
+Lo que **no** tiene esta versión: inicio de sesión, roles ni cifrado propio (HTTPS lo pone el servidor donde se
+instale). Por eso debe usarse solo en la red interna y con datos sintéticos hasta que eso exista.
+
+## 10. Indicador de glosas y prueba z (HU-07)
+
+**Indicador.** `% de facturas glosadas = facturas con inconsistencias ÷ facturas validadas × 100`. Se calcula en
+total, por periodo (mes del lote) y por causal (`servicios/indicadores.py`). Las facturas sin validar no cuentan.
+
+**Línea base y piloto.** Al cargar un lote se le pone un tipo: `general`, `linea_base` o `piloto`. La línea base es
+el «antes» y el piloto el «después».
+
+**Prueba z de diferencia de proporciones** (`servicios/estadistica.py`). Responde si la baja en el porcentaje de
+glosas es real o pudo ser casualidad:
+
+```
+p1 = x1 / n1        proporción glosada en la línea base
+p2 = x2 / n2        proporción glosada en el piloto
+p  = (x1 + x2) / (n1 + n2)                  proporción combinada
+EE = raíz( p · (1 − p) · (1/n1 + 1/n2) )    error estándar
+z  = (p1 − p2) / EE
+```
+
+- **H0:** las dos proporciones son iguales. **H1:** la del piloto es menor (una cola; es la del proyecto) o
+  simplemente distinta (dos colas).
+- El **valor p** es la probabilidad de ver una diferencia así de grande si H0 fuera cierta. Si es menor que
+  **alfa = 0,05**, se rechaza H0: la reducción es estadísticamente significativa.
+- Se usa solo la biblioteca estándar de Python (`math.erfc` para el valor p y `statistics.NormalDist` para el valor
+  crítico), sin librerías externas.
+- El servicio también devuelve el intervalo de confianza de la diferencia, avisa cuando las muestras son muy
+  pequeñas para la aproximación normal y redacta la interpretación en español.
+- Las cifras salen de los lotes marcados como línea base y piloto, o se digitan (solo totales, nunca datos de
+  pacientes) cuando se tengan las cifras reales del hospital.
+
+Ejemplo comprobado a mano en las pruebas: 45 glosadas de 100 contra 30 de 100 → p = 0,375; EE = 0,0685;
+z = 2,19; valor p = 0,014 → se rechaza H0.
+
+## 11. Generador de lotes sintéticos
+
+`backend/scripts/generar_lote.py` inventa facturas correctas a partir de los contratos y del catálogo, y a un
+porcentaje de ellas les **siembra un error conocido** (a veces dos). Cada error está pensado para disparar una sola
+regla:
+
+| Regla | Error que se siembra |
+|---|---|
+| FA-01 | El RIPS trae el número de otra factura |
+| FA-02 | Al total de la factura se le suma un valor |
+| FA-03 | En la factura se cambia el último dígito de un código |
+| FA-04 | Un código queda con 5 caracteres |
+| TA-01 | Se cobra por encima de la tarifa pactada |
+| TA-02 | Se agrega un servicio que la EPS no tiene pactado |
+| SO-01 | Se quitan los soportes |
+| AU-01 | Se borra el número de autorización |
+
+Junto al lote se guarda un archivo `_esperado.json` con las reglas que debe disparar cada factura. Las pruebas
+cargan el lote, lo validan y comparan: el motor debe encontrar **exactamente** eso, ni más ni menos. Como usa una
+semilla fija, el mismo comando siempre produce el mismo lote.
+
+## 12. Pruebas
+
+Las pruebas están en `backend/tests/` y se ejecutan con `python -m pytest`. Usan una base de datos SQLite en
+memoria que se crea vacía para cada prueba.
+
+| Nivel | Qué se prueba | Cómo |
+|---|---|---|
+| Regla | Cada regla con casos que pasan, casos que fallan y bordes (tolerancia, vacíos) | Se arma un `ContextoFactura` a mano; no hay base de datos |
+| Motor | Orden de las reglas, reglas apagadas, tope del valor en riesgo | Igual, con contextos a mano |
+| Servicios | Guardar, validar, revalidar, reportes, indicadores | Base en memoria con la carga inicial |
+| API | Cada endpoint, con respuestas correctas y errores | Cliente de pruebas de FastAPI |
+| Integral | Lote demo: 12 facturas, 5 aptas, 7 con inconsistencias, $260.000 | Por el motor, por los servicios y por la API |
+| Generador | El motor detecta exactamente los errores sembrados | 5 semillas de 300 facturas y los dos lotes de `data/` |
+| Frontend | Las páginas responden, enlazan archivos que existen y cumplen la política de seguridad | Revisión del HTML y del JavaScript |
+
+## 13. Limitaciones conocidas y trabajo futuro
 
 - Del RIPS se leen **consultas, procedimientos y medicamentos**. Urgencias, hospitalización, recién nacidos y otros
   servicios (Res. 2275 de 2023) quedan para una siguiente versión.
