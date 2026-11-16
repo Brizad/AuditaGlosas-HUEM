@@ -1,0 +1,118 @@
+{
+ "descripcion": "Reglas que debe disparar cada factura del lote. Datos sintéticos (Ley 1581 de 2012).",
+ "lote": "Piloto sintético (200 facturas)",
+ "tipo": "piloto",
+ "periodo": "2026-08",
+ "semilla": 2275,
+ "total_facturas": 200,
+ "con_inconsistencias": 30,
+ "aptas": 170,
+ "porcentaje_con_inconsistencias": 15.0,
+ "facturas_por_regla": {
+  "AU-01": 4,
+  "FA-01": 3,
+  "FA-02": 6,
+  "FA-03": 2,
+  "FA-04": 2,
+  "SO-01": 10,
+  "TA-01": 6,
+  "TA-02": 2
+ },
+ "reglas_por_factura": {
+  "PI-0012": [
+   "SO-01"
+  ],
+  "PI-0036": [
+   "FA-02"
+  ],
+  "PI-0049": [
+   "FA-02"
+  ],
+  "PI-0061": [
+   "TA-01"
+  ],
+  "PI-0063": [
+   "FA-01"
+  ],
+  "PI-0064": [
+   "FA-03",
+   "TA-01"
+  ],
+  "PI-0072": [
+   "SO-01"
+  ],
+  "PI-0078": [
+   "AU-01",
+   "FA-01"
+  ],
+  "PI-0083": [
+   "SO-01"
+  ],
+  "PI-0085": [
+   "SO-01"
+  ],
+  "PI-0096": [
+   "FA-02"
+  ],
+  "PI-0100": [
+   "SO-01"
+  ],
+  "PI-0106": [
+   "AU-01"
+  ],
+  "PI-0127": [
+   "AU-01",
+   "SO-01"
+  ],
+  "PI-0133": [
+   "SO-01"
+  ],
+  "PI-0136": [
+   "SO-01"
+  ],
+  "PI-0138": [
+   "FA-01"
+  ],
+  "PI-0147": [
+   "SO-01"
+  ],
+  "PI-0151": [
+   "FA-02"
+  ],
+  "PI-0152": [
+   "TA-02"
+  ],
+  "PI-0155": [
+   "TA-01"
+  ],
+  "PI-0157": [
+   "TA-02"
+  ],
+  "PI-0167": [
+   "TA-01"
+  ],
+  "PI-0172": [
+   "FA-02",
+   "TA-01"
+  ],
+  "PI-0175": [
+   "TA-01"
+  ],
+  "PI-0178": [
+   "SO-01"
+  ],
+  "PI-0179": [
+   "AU-01"
+  ],
+  "PI-0187": [
+   "FA-04"
+  ],
+  "PI-0190": [
+   "FA-04"
+  ],
+  "PI-0196": [
+   "FA-02",
+   "FA-03"
+  ]
+ }
+}

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resultados · AuditaGlosas HUEM</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="resultados">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <div class="titulo-pagina">
+      <div>
+        <h1 id="titulo">Resultados de la validación</h1>
+        <p id="subtitulo">&nbsp;</p>
+      </div>
+      <div class="acciones" id="acciones" hidden>
+        <label class="campo">
+          <span class="solo-lectores">Lote</span>
+          <select id="selector-lote" aria-label="Cambiar de lote"></select>
+        </label>
+        <button class="boton primario" type="button" id="validar">Validar antes de radicar</button>
+        <a class="boton" id="exportar" href="#">Exportar CSV</a>
+      </div>
+    </div>
+
+    <div id="aviso-lote"></div>
+
+    <div id="cuerpo" class="pila" hidden>
+      <section class="kpis" aria-label="Resumen del lote">
+        <div class="kpi"><div class="rotulo">Facturas analizadas</div><div class="valor" id="k-total">—</div><div class="nota" id="k-total-nota">&nbsp;</div></div>
+        <div class="kpi ok"><div class="rotulo">Aptas para radicar</div><div class="valor" id="k-aptas">—</div><div class="nota" id="k-aptas-nota">&nbsp;</div></div>
+        <div class="kpi mal"><div class="rotulo">Con inconsistencias</div><div class="valor" id="k-malas">—</div><div class="nota" id="k-malas-nota">&nbsp;</div></div>
+        <div class="kpi rojo"><div class="rotulo">Valor en riesgo de glosa</div><div class="valor" id="k-riesgo">—</div><div class="nota" id="k-riesgo-nota">&nbsp;</div></div>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Estado de las facturas del lote</h2>
+        <div id="g-estados"></div>
+      </section>
+
+      <div class="rejilla-2">
+        <section class="tarjeta">
+          <h2>Hallazgos por grupo de causal</h2>
+          <p class="apoyo">Res. 2284 de 2023. Una factura puede tener varios hallazgos.</p>
+          <div id="g-causales"></div>
+        </section>
+        <section class="tarjeta">
+          <h2>Facturas con inconsistencias por EPS</h2>
+          <p class="apoyo">Cuántas facturas de cada EPS hay que corregir antes de radicar.</p>
+          <div id="g-eps"></div>
+        </section>
+      </div>
+
+      <section class="tarjeta">
+        <div class="cabecera-tarjeta">
+          <h2>Resultado por factura</h2>
+          <div class="filtros">
+            <label class="campo">
+              <span>Estado</span>
+              <select id="filtro-estado">
+                <option value="">Todas</option>
+                <option value="con_inconsistencias">Con inconsistencias</option>
+                <option value="apta">Aptas</option>
+                <option value="sin_validar">Sin validar</option>
+              </select>
+            </label>
+            <label class="campo">
+              <span>Buscar</span>
+              <input type="search" id="filtro-texto" placeholder="Factura, EPS o regla">
+            </label>
+          </div>
+        </div>
+        <div id="facturas"></div>
+        <p class="apoyo arriba-chico" id="conteo-facturas"></p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/resultados.js"></script>
+</body>
+</html>
