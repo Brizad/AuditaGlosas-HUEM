@@ -1,11 +1,19 @@
-"""Guardar un lote de facturas en la base de datos (HU-01)."""
+"""Guardar, resumir y eliminar lotes de facturas (HU-01)."""
 from collections import Counter
+from dataclasses import dataclass
 from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
-from app.constantes import CLASE_CONSULTA, CLASE_MEDICAMENTO, CLASE_PROCEDIMIENTO
+from app.constantes import (
+    CLASE_CONSULTA,
+    CLASE_MEDICAMENTO,
+    CLASE_PROCEDIMIENTO,
+    ESTADO_APTA,
+    ESTADO_CON_INCONSISTENCIAS,
+    ESTADO_SIN_VALIDAR,
+)
 from app.esquemas import FacturaEntrada, LoteEntrada
 from app.modelos import (
     Eps,
@@ -121,3 +129,43 @@ def eliminar_lote(sesion: Session, lote: Lote) -> None:
     """Borra el lote con sus facturas, servicios, soportes y hallazgos."""
     sesion.delete(lote)
     sesion.commit()
+
+
+@dataclass(frozen=True)
+class ResumenLote:
+    """Las cifras que se muestran en las tarjetas de resultados."""
+
+    total_facturas: int
+    aptas: int
+    con_inconsistencias: int
+    sin_validar: int
+    valor_facturado: float
+    valor_en_riesgo: float
+
+    @property
+    def porcentaje_aptas(self) -> float:
+        """Porcentaje de facturas aptas sobre las ya validadas."""
+        validadas = self.aptas + self.con_inconsistencias
+        return round(100 * self.aptas / validadas, 1) if validadas else 0.0
+
+
+def resumir_lote(sesion: Session, lote_id: int) -> ResumenLote:
+    """Cuenta las facturas del lote por estado y suma sus valores (una sola consulta)."""
+
+    def contar_estado(estado: str):
+        return func.coalesce(func.sum(case((Factura.estado == estado, 1), else_=0)), 0)
+
+    fila = sesion.execute(
+        select(
+            func.count(Factura.id),
+            contar_estado(ESTADO_APTA),
+            contar_estado(ESTADO_CON_INCONSISTENCIAS),
+            contar_estado(ESTADO_SIN_VALIDAR),
+            func.coalesce(func.sum(Factura.valor_total), 0),
+            func.coalesce(func.sum(Factura.valor_en_riesgo), 0),
+        ).where(Factura.lote_id == lote_id)
+    ).one()
+    return ResumenLote(
+        total_facturas=fila[0], aptas=int(fila[1]), con_inconsistencias=int(fila[2]), sin_validar=int(fila[3]),
+        valor_facturado=float(fila[4]), valor_en_riesgo=float(fila[5]),
+    )

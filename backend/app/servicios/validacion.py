@@ -1,15 +1,18 @@
 """Puente entre la base de datos y el motor de reglas.
 
-El motor no conoce la base de datos: aquí se leen las tablas y se arma el
-`ContextoFactura` que las reglas entienden.
+El motor no conoce la base de datos: aquí se leen las tablas, se arma el
+`ContextoFactura` que las reglas entienden y se guarda el resultado.
 """
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.modelos import Eps, Factura, ServicioCatalogo, SoporteRequerido
-from app.reglas import ContextoFactura, ItemFacturado, ServicioPrestado
+from app.constantes import ESTADO_APTA, ESTADO_CON_INCONSISTENCIAS, ESTADO_LOTE_VALIDADO
+from app.modelos import Eps, Factura, Hallazgo, Lote, ServicioCatalogo, SoporteRequerido
+from app.reglas import ContextoFactura, ItemFacturado, ServicioPrestado, validar_factura
+from app.servicios.catalogo_reglas import codigos_activos, sincronizar_reglas
 
 
 @dataclass
@@ -83,3 +86,47 @@ def construir_contexto(factura: Factura, referencia: DatosReferencia) -> Context
         tipos_servicio=referencia.tipos_servicio,
         soportes_requeridos=referencia.soportes_requeridos,
     )
+
+
+def validar_lote(sesion: Session, lote: Lote) -> Lote:
+    """Aplica las reglas activas a todas las facturas del lote y guarda el resultado.
+
+    Cada validación borra los hallazgos anteriores y los calcula de nuevo. Por
+    eso, si se activa o desactiva una regla, basta con validar otra vez.
+    """
+    sincronizar_reglas(sesion)          # asegura que todas las reglas del código estén en la tabla
+    activos = codigos_activos(sesion)
+    referencia = cargar_datos_referencia(sesion)
+
+    # Se traen las facturas con todo lo que necesitan las reglas, en pocas consultas.
+    consulta = (
+        select(Factura)
+        .where(Factura.lote_id == lote.id)
+        .options(
+            selectinload(Factura.eps),
+            selectinload(Factura.items),
+            selectinload(Factura.servicios),
+            selectinload(Factura.soportes),
+            selectinload(Factura.hallazgos),
+        )
+    )
+    for factura in sesion.scalars(consulta):
+        resultado = validar_factura(construir_contexto(factura, referencia), activos)
+        # Al reemplazar la lista, SQLAlchemy borra los hallazgos viejos (delete-orphan).
+        factura.hallazgos = [
+            Hallazgo(
+                regla_codigo=hallazgo.regla,
+                grupo=hallazgo.grupo,
+                titulo=hallazgo.titulo,
+                detalle=hallazgo.detalle,
+                valor_en_riesgo=hallazgo.valor_en_riesgo,
+            )
+            for hallazgo in resultado.hallazgos
+        ]
+        factura.estado = ESTADO_APTA if resultado.apta else ESTADO_CON_INCONSISTENCIAS
+        factura.valor_en_riesgo = resultado.valor_en_riesgo
+
+    lote.estado = ESTADO_LOTE_VALIDADO
+    lote.fecha_validacion = datetime.now()
+    sesion.commit()
+    return lote
