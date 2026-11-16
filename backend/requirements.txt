@@ -1,0 +1,14 @@
+# Servidor web y API
+fastapi>=0.115
+uvicorn[standard]>=0.30
+
+# Base de datos (SQLite en desarrollo, PostgreSQL en producción)
+sqlalchemy>=2.0
+
+# Pruebas
+pytest>=8.0
+# Cliente HTTP que usa el TestClient de FastAPI/Starlette para probar la API
+httpx2>=2.0
+
+# Solo si se usa PostgreSQL (definiendo la variable DATABASE_URL):
+# psycopg[binary]>=3.1
