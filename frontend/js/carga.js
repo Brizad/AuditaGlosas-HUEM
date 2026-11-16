@@ -15,6 +15,18 @@ function extraerFacturas(contenido) {
   throw new Error("El archivo debe contener una lista de facturas [ ] o un objeto con la lista «facturas».");
 }
 
+/**
+ * Si el archivo ya dice el nombre, el tipo y el periodo del lote (así salen los lotes
+ * del generador), se copian al formulario para no tener que digitarlos.
+ */
+function usarDatosDelArchivo(contenido) {
+  if (!contenido || Array.isArray(contenido)) return;
+  const sinNombre = !porId("nombre").value.trim();   // no se pisa lo que el usuario ya escribió
+  if (sinNombre && typeof contenido.nombre === "string" && contenido.nombre.trim()) porId("nombre").value = contenido.nombre.trim().slice(0, 120);
+  if (["general", "linea_base", "piloto"].includes(contenido.tipo)) porId("tipo").value = contenido.tipo;
+  if (/^\d{4}-(0[1-9]|1[0-2])$/.test(contenido.periodo || "")) porId("periodo").value = contenido.periodo;
+}
+
 async function leerArchivo(archivo) {
   const previa = porId("vista-previa");
   facturas = null;
@@ -37,6 +49,7 @@ async function leerArchivo(archivo) {
     poner(previa, h("div", { class: "alerta ok arriba" },
       h("b", null, `${numero(facturas.length)} facturas listas para cargar`),
       eps.length ? ` · EPS: ${eps.slice(0, 6).join(", ")}${eps.length > 6 ? "…" : ""}` : ""));
+    usarDatosDelArchivo(contenido);
     // Se propone un nombre a partir del archivo, si el usuario no escribió uno.
     if (!porId("nombre").value.trim()) porId("nombre").value = archivo.name.replace(/\.json$/i, "").replace(/[_-]+/g, " ").slice(0, 120);
     porId("enviar").disabled = false;
