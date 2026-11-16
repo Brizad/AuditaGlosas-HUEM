@@ -19,6 +19,7 @@ PAGINAS = {
     "/reportes": "reportes.html",
     "/reglas": "reglas.html",
     "/contratos": "contratos.html",
+    "/linea-base": "linea-base.html",
 }
 
 

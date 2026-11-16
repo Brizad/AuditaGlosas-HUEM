@@ -138,6 +138,7 @@ const PAGINAS = [
   ["carga", "/carga", "Cargar lote"],
   ["resultados", "/resultados", "Resultados"],
   ["reportes", "/reportes", "Reportes"],
+  ["linea-base", "/linea-base", "Línea base"],
   ["reglas", "/reglas", "Reglas"],
   ["contratos", "/contratos", "Contratos y tarifas"],
 ];

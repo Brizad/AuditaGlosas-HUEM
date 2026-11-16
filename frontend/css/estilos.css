@@ -254,10 +254,20 @@ input.entrada-chica { width: 112px; text-align: right; }
 .resultado-z div { border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; }
 .resultado-z dt { color: var(--tenue); font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .resultado-z dd { margin: 2px 0 0; font-size: 1.25rem; font-weight: 700; }
+.resultado-z { margin: 0; align-content: start; }
+.resultado-z .apoyo { font-size: .8rem; }
+/* Grupo de campos con título (línea base / piloto) */
+fieldset.grupo { border: 1px solid var(--linea); border-radius: 10px; padding: 10px 14px 14px; margin: 0; min-width: 0; }
+fieldset.grupo legend { font-weight: 700; padding: 0 6px; }
+/* Opciones de la prueba z: la hipótesis necesita más ancho que el alfa */
+.formulario.opciones-z { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) auto auto; }
+details ol { margin: 8px 0 0; padding-left: 22px; }
+details li { margin: 3px 0; }
 
 /* ---------- 7. Pantallas pequeñas ---------- */
 @media (max-width: 860px) {
   .rejilla-2, .rejilla-lateral { grid-template-columns: minmax(0, 1fr); }
+  .formulario.opciones-z { grid-template-columns: minmax(0, 1fr); }
   .encabezado-interno { flex-direction: column; align-items: stretch; gap: 4px; padding: 10px 12px 8px; }
   .navegacion { margin-left: 0; padding-bottom: 2px; }
 }
