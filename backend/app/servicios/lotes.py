@@ -5,11 +5,9 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.constantes import CLASE_CONSULTA, CLASE_MEDICAMENTO, CLASE_PROCEDIMIENTO
 from app.esquemas import FacturaEntrada, LoteEntrada
 from app.modelos import (
-    CLASE_CONSULTA,
-    CLASE_MEDICAMENTO,
-    CLASE_PROCEDIMIENTO,
     Eps,
     Factura,
     ItemFactura,

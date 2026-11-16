@@ -24,21 +24,11 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.base_datos import Base
+from app.constantes import ESTADO_LOTE_CARGADO, ESTADO_SIN_VALIDAR, TIPO_GENERAL
 
 # Tipo de columna para dinero y cantidades: 14 dígitos, 2 decimales.
 # `asdecimal=False` hace que Python reciba números normales (float).
 DINERO = Numeric(14, 2, asdecimal=False)
-
-# Valores permitidos (se usan también en los esquemas y en las reglas).
-TIPOS_LOTE = ("general", "linea_base", "piloto")
-ESTADO_LOTE_CARGADO = "cargado"
-ESTADO_LOTE_VALIDADO = "validado"
-ESTADO_SIN_VALIDAR = "sin_validar"
-ESTADO_APTA = "apta"
-ESTADO_CON_INCONSISTENCIAS = "con_inconsistencias"
-CLASE_CONSULTA = "consulta"
-CLASE_PROCEDIMIENTO = "procedimiento"
-CLASE_MEDICAMENTO = "medicamento"
 
 
 # ---------------------------------------------------------------------------
@@ -139,7 +129,7 @@ class Lote(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     nombre: Mapped[str] = mapped_column(String(120))
-    tipo: Mapped[str] = mapped_column(String(20), default="general")  # general, linea_base o piloto
+    tipo: Mapped[str] = mapped_column(String(20), default=TIPO_GENERAL)  # general, linea_base o piloto
     periodo: Mapped[str] = mapped_column(String(7), index=True)  # AAAA-MM
     estado: Mapped[str] = mapped_column(String(20), default=ESTADO_LOTE_CARGADO)
     fecha_carga: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
