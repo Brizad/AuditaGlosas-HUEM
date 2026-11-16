@@ -29,3 +29,25 @@ def sesion_con_datos(sesion):
     """Sesión con la carga inicial hecha: 3 EPS, catálogo y lote demo de 12 facturas."""
     ejecutar_carga_inicial(sesion)
     return sesion
+
+
+# --- Pruebas de la API -------------------------------------------------------
+@pytest.fixture()
+def cliente(sesion_con_datos):
+    """Cliente HTTP de pruebas con contratos, catálogo, reglas y el lote demo ya cargados (lote 1)."""
+    from fastapi.testclient import TestClient
+
+    from app.principal import app
+    from app.servicios.catalogo_reglas import sincronizar_reglas
+
+    sincronizar_reglas(sesion_con_datos)
+    return TestClient(app)
+
+
+@pytest.fixture()
+def lote_demo_json():
+    """Las 12 facturas de `data/lote_demo.json` tal como vienen en el archivo."""
+    from app.configuracion import ARCHIVO_LOTE_DEMO
+    from app.servicios.carga_inicial import leer_json
+
+    return leer_json(ARCHIVO_LOTE_DEMO)
