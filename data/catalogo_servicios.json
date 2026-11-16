@@ -1,0 +1,17 @@
+{
+  "servicios": {
+    "890201": { "descripcion": "Consulta de primera vez por medicina general", "tipo": "consulta" },
+    "890301": { "descripcion": "Consulta de control por medicina general", "tipo": "consulta" },
+    "903841": { "descripcion": "Glucosa en suero", "tipo": "laboratorio" },
+    "902210": { "descripcion": "Hemograma", "tipo": "laboratorio" },
+    "871121": { "descripcion": "Radiografía de tórax", "tipo": "imagen" },
+    "MED-0001": { "descripcion": "Acetaminofén 500 mg tableta", "tipo": "medicamento" },
+    "MED-0002": { "descripcion": "Amoxicilina 500 mg cápsula", "tipo": "medicamento" }
+  },
+  "soportes_requeridos": {
+    "consulta": [],
+    "laboratorio": ["Resultado de laboratorio"],
+    "imagen": ["Lectura o informe del examen"],
+    "medicamento": ["Fórmula médica"]
+  }
+}
