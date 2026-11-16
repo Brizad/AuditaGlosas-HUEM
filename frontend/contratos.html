@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contratos y tarifas · AuditaGlosas HUEM</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="contratos">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <div class="titulo-pagina">
+      <div>
+        <h1>Contratos y tarifas</h1>
+        <p>Tarifas pactadas con cada EPS y servicios para los que exige autorización. Las reglas de tarifas
+          (TA-01, TA-02) y de autorizaciones (AU-01) comparan cada factura contra estos datos.</p>
+      </div>
+    </div>
+
+    <div class="alerta aviso">
+      EPS, tarifas y códigos de ejemplo. <b>No corresponden a contratos reales del HUEM.</b>
+      Los cambios aplican desde la siguiente validación.
+    </div>
+
+    <div class="rejilla-lateral">
+      <!-- Columna izquierda: lista de EPS y formulario para crear una -->
+      <div class="pila">
+        <section class="tarjeta">
+          <h2>EPS</h2>
+          <div class="lista-eps" id="lista-eps"></div>
+        </section>
+        <section class="tarjeta">
+          <h2>Nueva EPS</h2>
+          <form id="form-eps" class="pila">
+            <label class="campo"><span>Código</span>
+              <input type="text" id="eps-codigo" required maxlength="30" pattern="[A-Za-z0-9_\-]{2,30}" placeholder="EPS-DELTA">
+              <small>Sin espacios ni tildes.</small></label>
+            <label class="campo"><span>Nombre</span>
+              <input type="text" id="eps-nombre" required minlength="2" maxlength="120" placeholder="EPS Delta"></label>
+            <button class="boton primario" type="submit">Crear EPS</button>
+          </form>
+        </section>
+      </div>
+
+      <!-- Columna derecha: contrato de la EPS elegida -->
+      <section class="tarjeta" id="detalle">
+        <p class="vacio">Elija una EPS para ver su contrato.</p>
+      </section>
+    </div>
+
+    <section class="tarjeta">
+      <h2>Catálogo de servicios</h2>
+      <p class="apoyo">El tipo de cada servicio define qué soportes debe traer la factura (regla SO-01).</p>
+      <div id="catalogo"></div>
+      <form id="form-servicio" class="formulario arriba">
+        <label class="campo"><span>Código</span>
+          <input type="text" id="srv-codigo" required maxlength="20" pattern="[A-Za-z0-9._\-]{1,20}" placeholder="881302"></label>
+        <label class="campo"><span>Descripción</span>
+          <input type="text" id="srv-descripcion" required minlength="2" maxlength="200" placeholder="Ecografía abdominal"></label>
+        <label class="campo"><span>Tipo</span><select id="srv-tipo"></select></label>
+        <button class="boton" type="submit">Guardar servicio</button>
+      </form>
+      <p class="apoyo arriba-chico">Si el código ya existe, se actualizan su descripción y su tipo.</p>
+    </section>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/contratos.js"></script>
+</body>
+</html>

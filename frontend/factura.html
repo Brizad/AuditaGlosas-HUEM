@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detalle de factura · AuditaGlosas HUEM</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="resultados">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <nav class="migas" id="migas" aria-label="Ruta">&nbsp;</nav>
+
+    <div class="titulo-pagina">
+      <div>
+        <h1 id="titulo">Detalle de la factura</h1>
+        <p id="subtitulo">&nbsp;</p>
+      </div>
+      <div class="acciones" id="estado"></div>
+    </div>
+
+    <div id="cuerpo" class="pila" hidden>
+      <section class="tarjeta">
+        <dl class="datos" id="datos"></dl>
+      </section>
+
+      <section class="tarjeta">
+        <h2 id="titulo-hallazgos">Hallazgos</h2>
+        <p class="apoyo" id="nota-hallazgos"></p>
+        <ul class="hallazgos" id="hallazgos"></ul>
+      </section>
+
+      <div class="rejilla-2">
+        <section class="tarjeta">
+          <h2>Lo que cobra la factura</h2>
+          <div id="items"></div>
+        </section>
+        <section class="tarjeta">
+          <h2>Lo que reporta el RIPS</h2>
+          <div id="servicios"></div>
+        </section>
+      </div>
+
+      <section class="tarjeta">
+        <h2>Soportes adjuntos</h2>
+        <div id="soportes"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/factura.js"></script>
+</body>
+</html>

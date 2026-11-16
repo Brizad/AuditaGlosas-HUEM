@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reportes · AuditaGlosas HUEM</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="reportes">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <div class="titulo-pagina">
+      <div>
+        <h1>Reportes de inconsistencias</h1>
+        <p>Hallazgos por grupo de causal (Res. 2284 de 2023) y por EPS. Los filtros aplican a todo lo que se ve
+          en la página y al archivo que se exporta.</p>
+      </div>
+      <div class="acciones">
+        <a class="boton primario" id="exportar" href="/api/reportes/exportar.csv">Exportar CSV</a>
+      </div>
+    </div>
+
+    <!-- Una sola fila de filtros para toda la página -->
+    <section class="tarjeta filtros" aria-label="Filtros">
+      <label class="campo"><span>Lote</span><select id="f-lote"><option value="">Todos los lotes</option></select></label>
+      <label class="campo"><span>Periodo</span><select id="f-periodo"><option value="">Todos los periodos</option></select></label>
+      <label class="campo"><span>Tipo de lote</span>
+        <select id="f-tipo">
+          <option value="">Todos los tipos</option>
+          <option value="general">General</option>
+          <option value="linea_base">Línea base</option>
+          <option value="piloto">Piloto</option>
+        </select>
+      </label>
+      <button class="boton" type="button" id="limpiar">Quitar filtros</button>
+    </section>
+
+    <section class="kpis" aria-label="Totales del reporte">
+      <div class="kpi"><div class="rotulo">Facturas</div><div class="valor" id="k-total">—</div><div class="nota" id="k-total-nota">&nbsp;</div></div>
+      <div class="kpi mal"><div class="rotulo">Con inconsistencias</div><div class="valor" id="k-malas">—</div><div class="nota" id="k-malas-nota">&nbsp;</div></div>
+      <div class="kpi"><div class="rotulo">Hallazgos</div><div class="valor" id="k-hallazgos">—</div><div class="nota" id="k-hallazgos-nota">&nbsp;</div></div>
+      <div class="kpi rojo"><div class="rotulo">Valor en riesgo de glosa</div><div class="valor" id="k-riesgo">—</div><div class="nota" id="k-riesgo-nota">&nbsp;</div></div>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Por grupo de causal</h2>
+      <p class="apoyo">Cuántos hallazgos generó cada grupo y cada regla.</p>
+      <div class="rejilla-2">
+        <div id="g-causales"></div>
+        <div id="t-causales"></div>
+      </div>
+      <p class="apoyo arriba" id="nota-causal"></p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Por EPS</h2>
+      <p class="apoyo">Facturas de cada EPS que hay que corregir antes de radicar.</p>
+      <div class="rejilla-2">
+        <div id="g-eps"></div>
+        <div id="t-eps"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/reportes.js"></script>
+</body>
+</html>
