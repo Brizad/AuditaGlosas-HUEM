@@ -19,3 +19,6 @@ ESTADO_CON_INCONSISTENCIAS = "con_inconsistencias"
 CLASE_CONSULTA = "consulta"
 CLASE_PROCEDIMIENTO = "procedimiento"
 CLASE_MEDICAMENTO = "medicamento"
+
+# Mayor valor en pesos que acepta el sistema (cabe en las columnas de dinero de la base de datos).
+VALOR_MAXIMO = 999_999_999_999

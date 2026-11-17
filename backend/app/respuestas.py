@@ -8,11 +8,13 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, StringConstraints
 
+from app.constantes import VALOR_MAXIMO
+
 # --- Tipos para los datos que el usuario digita en «Contratos y tarifas» -----
 CodigoEps = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^[A-Za-z0-9_-]{2,30}$")]
 CodigoServicio = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^[A-Za-z0-9._-]{1,20}$")]
 Nombre = Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=120)]
-ValorTarifa = Annotated[float, Field(ge=0, le=999_999_999_999, allow_inf_nan=False)]
+ValorTarifa = Annotated[float, Field(ge=0, le=VALOR_MAXIMO, allow_inf_nan=False)]
 
 
 # --- Sistema ------------------------------------------------------------------

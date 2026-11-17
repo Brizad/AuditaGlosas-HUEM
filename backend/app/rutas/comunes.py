@@ -1,7 +1,7 @@
 """Piezas que comparten varios archivos de rutas."""
 from typing import Annotated, Literal
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 
 from app.base_datos import obtener_sesion
@@ -16,9 +16,14 @@ SesionBD = Annotated[Session, Depends(obtener_sesion)]
 
 PATRON_PERIODO = r"^\d{4}-(0[1-9]|1[0-2])$"
 
+# Mayor número que cabe en una columna entera de PostgreSQL. Un identificador más grande no puede existir.
+ID_MAXIMO = 2_147_483_647
+# Identificador que llega en la dirección, por ejemplo el 3 de /api/lotes/3.
+IdRegistro = Annotated[int, Path(ge=1, le=ID_MAXIMO)]
+
 
 def filtro_de_reporte(
-    lote_id: Annotated[int | None, Query(ge=1, description="Solo este lote.")] = None,
+    lote_id: Annotated[int | None, Query(ge=1, le=ID_MAXIMO, description="Solo este lote.")] = None,
     periodo: Annotated[str | None, Query(pattern=PATRON_PERIODO, description="Solo este periodo (AAAA-MM).")] = None,
     tipo: Annotated[
         Literal["general", "linea_base", "piloto"] | None, Query(description="Solo lotes de este tipo.")

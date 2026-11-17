@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.constantes import ESTADO_APTA, ESTADO_CON_INCONSISTENCIAS, ESTADO_LOTE_VALIDADO
+from app.constantes import ESTADO_APTA, ESTADO_CON_INCONSISTENCIAS, ESTADO_LOTE_VALIDADO, VALOR_MAXIMO
 from app.modelos import Eps, Factura, Hallazgo, Lote, ServicioCatalogo, SoporteRequerido
 from app.reglas import ContextoFactura, ItemFacturado, ServicioPrestado, validar_factura
 from app.servicios.catalogo_reglas import codigos_activos, sincronizar_reglas
@@ -119,7 +119,8 @@ def validar_lote(sesion: Session, lote: Lote) -> Lote:
                 grupo=hallazgo.grupo,
                 titulo=hallazgo.titulo,
                 detalle=hallazgo.detalle,
-                valor_en_riesgo=hallazgo.valor_en_riesgo,
+                # Tope de seguridad: una cantidad absurda en el lote no debe desbordar la columna.
+                valor_en_riesgo=min(hallazgo.valor_en_riesgo, VALOR_MAXIMO),
             )
             for hallazgo in resultado.hallazgos
         ]

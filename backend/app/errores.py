@@ -44,6 +44,7 @@ MENSAJES = {
     "too_long": "tiene demasiados elementos (máximo {max_length})",
     "literal_error": "valor no permitido; las opciones son {expected}",
     "json_invalid": "el contenido no es un JSON válido",
+    "value_error": "contiene un carácter no permitido",
 }
 
 

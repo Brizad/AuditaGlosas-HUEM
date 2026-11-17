@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from app.esquemas import LoteEntrada
 from app.modelos import Factura, Lote
 from app.respuestas import FacturaResumenSalida, LoteSalida, Mensaje, ResultadosLoteSalida
-from app.rutas.comunes import PATRON_PERIODO, SesionBD, buscar_lote, lote_a_salida
+from app.rutas.comunes import PATRON_PERIODO, IdRegistro, SesionBD, buscar_lote, lote_a_salida
 from app.servicios.lotes import ErrorDeCarga, eliminar_lote, guardar_lote, resumir_lote, resumir_lotes
 from app.servicios.validacion import validar_lote
 
@@ -63,13 +63,13 @@ def listar_lotes(
 
 
 @enrutador.get("/{lote_id}", response_model=LoteSalida, responses=NO_EXISTE, summary="Consultar un lote")
-def ver_lote(lote_id: int, sesion: SesionBD):
+def ver_lote(lote_id: IdRegistro, sesion: SesionBD):
     lote = buscar_lote(sesion, lote_id)
     return lote_a_salida(lote, resumir_lote(sesion, lote.id))
 
 
 @enrutador.delete("/{lote_id}", status_code=204, responses=NO_EXISTE, summary="Eliminar un lote")
-def borrar_lote(lote_id: int, sesion: SesionBD):
+def borrar_lote(lote_id: IdRegistro, sesion: SesionBD):
     """Elimina el lote con sus facturas y hallazgos. No se puede deshacer."""
     eliminar_lote(sesion, buscar_lote(sesion, lote_id))
     return Response(status_code=204)
@@ -79,7 +79,7 @@ def borrar_lote(lote_id: int, sesion: SesionBD):
     "/{lote_id}/validar", response_model=LoteSalida, responses=NO_EXISTE,
     summary="Validar el lote antes de radicar",
 )
-def validar(lote_id: int, sesion: SesionBD):
+def validar(lote_id: IdRegistro, sesion: SesionBD):
     """Aplica las reglas **activas** a cada factura y guarda los hallazgos.
 
     Se puede ejecutar varias veces: cada vez se recalcula todo con las reglas
@@ -94,7 +94,7 @@ def validar(lote_id: int, sesion: SesionBD):
     summary="Resultados del lote factura por factura",
 )
 def resultados(
-    lote_id: int,
+    lote_id: IdRegistro,
     sesion: SesionBD,
     estado: Annotated[Literal["apta", "con_inconsistencias", "sin_validar"] | None, Query()] = None,
 ):

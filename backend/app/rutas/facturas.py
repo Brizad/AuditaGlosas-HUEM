@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from app.modelos import Factura, ServicioCatalogo
 from app.reglas import GRUPOS
 from app.respuestas import FacturaDetalleSalida, HallazgoSalida, ItemSalida, Mensaje, ServicioSalida
-from app.rutas.comunes import SesionBD
+from app.rutas.comunes import IdRegistro, SesionBD
 
 enrutador = APIRouter(prefix="/api/facturas", tags=["Facturas"])
 
@@ -17,7 +17,7 @@ enrutador = APIRouter(prefix="/api/facturas", tags=["Facturas"])
     responses={404: {"model": Mensaje, "description": "La factura no existe."}},
     summary="Detalle de una factura",
 )
-def ver_factura(factura_id: int, sesion: SesionBD):
+def ver_factura(factura_id: IdRegistro, sesion: SesionBD):
     """Lo facturado, lo reportado en el RIPS, los soportes y cada hallazgo con su valor en riesgo."""
     factura = sesion.scalar(
         select(Factura)

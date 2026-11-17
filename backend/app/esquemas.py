@@ -13,7 +13,9 @@ están en camelCase: `numFactura`, `codConsulta`, `vrServicio`, etc.
 from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, StringConstraints, field_validator
+
+from app.constantes import VALOR_MAXIMO
 
 
 def _numero_a_texto(valor):
@@ -34,9 +36,15 @@ NumeroFactura = Annotated[
     BeforeValidator(_numero_a_texto),
     StringConstraints(strip_whitespace=True, min_length=1, max_length=40),
 ]
-Valor = Annotated[float, Field(ge=0, le=999_999_999_999, allow_inf_nan=False)]
+Valor = Annotated[float, Field(ge=0, le=VALOR_MAXIMO, allow_inf_nan=False)]
 Cantidad = Annotated[float, Field(gt=0, le=1_000_000, allow_inf_nan=False)]
 TextoCorto = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+# Datos opcionales del RIPS. Los máximos son los mismos de las columnas donde se guardan.
+# (El límite va sobre el texto y no sobre «texto o vacío», porque a un dato vacío no se le mide el largo.)
+NumeroOpcional = Annotated[
+    Annotated[str, StringConstraints(max_length=40)] | None, BeforeValidator(_numero_a_texto),
+]
+NombreOpcional = Annotated[str, StringConstraints(max_length=200)] | None
 
 
 class EsquemaEntrada(BaseModel):
@@ -49,27 +57,35 @@ class EsquemaEntrada(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
+    @field_validator("*", mode="before")
+    @classmethod
+    def _sin_caracter_nulo(cls, valor):
+        """Rechaza textos con el carácter nulo: no es un dato válido y PostgreSQL no lo puede guardar."""
+        if isinstance(valor, str) and "\x00" in valor:
+            raise ValueError("contiene un carácter no permitido")
+        return valor
+
 
 # RIPS ----------------------------------------------------------------------
 class ConsultaRips(EsquemaEntrada):
     codConsulta: Codigo
     vrServicio: Valor
-    numAutorizacion: Annotated[str | None, BeforeValidator(_numero_a_texto)] = None
+    numAutorizacion: NumeroOpcional = None
 
 
 class ProcedimientoRips(EsquemaEntrada):
     codProcedimiento: Codigo
     vrServicio: Valor
-    numAutorizacion: Annotated[str | None, BeforeValidator(_numero_a_texto)] = None
+    numAutorizacion: NumeroOpcional = None
 
 
 class MedicamentoRips(EsquemaEntrada):
     codTecnologiaSalud: Codigo
-    nomTecnologiaSalud: str | None = None
+    nomTecnologiaSalud: NombreOpcional = None
     cantidadMedicamento: Cantidad
     vrUnitMedicamento: Valor
     vrServicio: Valor
-    numAutorizacion: Annotated[str | None, BeforeValidator(_numero_a_texto)] = None
+    numAutorizacion: NumeroOpcional = None
 
 
 class ServiciosUsuario(EsquemaEntrada):
@@ -86,7 +102,7 @@ class UsuarioRips(EsquemaEntrada):
 
 class Rips(EsquemaEntrada):
     # Puede venir vacío o distinto al de la factura: lo reporta la regla FA-01.
-    numFactura: Annotated[str | None, BeforeValidator(_numero_a_texto)] = None
+    numFactura: NumeroOpcional = None
     usuarios: list[UsuarioRips] = Field(default_factory=list)
 
 
