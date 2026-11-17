@@ -95,7 +95,7 @@ cd backend
 python -m pytest
 ```
 
-Son **329 pruebas** automáticas (tardan unos 15 segundos). Usan una base de datos en memoria: no tocan los datos
+Son **359 pruebas** automáticas (tardan unos 15 segundos). Usan una base de datos en memoria: no tocan los datos
 del sistema. Cubren:
 
 | Archivos | Qué prueban |
@@ -107,6 +107,7 @@ del sistema. Cubren:
 | `test_estadistica.py`, `test_api_linea_base.py` | La prueba z contra valores calculados a mano y el indicador de glosas |
 | `test_generador.py` | Que el motor detecta exactamente los errores sembrados por el generador |
 | `test_paginas.py` | Las páginas web y las cabeceras de seguridad |
+| `test_seguridad.py` | Que otra página no pueda modificar datos, los límites de tamaño y de texto, y los errores en español |
 | `test_base_datos.py`, `test_errores.py`, `test_arranque_y_scripts.py` | Base de datos, mensajes de error, arranque y scripts |
 
 ## Usar PostgreSQL (opcional)
@@ -184,7 +185,11 @@ docs/           Arquitectura, manual de usuario, plan de trabajo y bitácora
 ## Limitaciones conocidas
 
 - Del RIPS se leen consultas, procedimientos y medicamentos (no urgencias, hospitalización ni otros servicios).
-- No hay inicio de sesión ni roles: está pensado para usarse en la red interna durante el piloto.
+- No hay inicio de sesión ni roles: está pensado para usarse en la red interna durante el piloto. Mientras
+  tanto, el servidor solo acepta cambios (cargar, eliminar, editar) hechos desde sus propias páginas.
+- La documentación automática de la API (`/docs`) necesita internet, porque carga sus archivos de un servidor
+  externo. El resto del sistema funciona sin internet.
+- Con SQLite conviene que una sola persona cargue o valide lotes a la vez; para varias personas, usar PostgreSQL.
 - «Factura glosada» se mide como factura con inconsistencias detectadas, porque aún no se tienen las respuestas
   reales de las EPS. Las cifras reales se pueden digitar en la pantalla de línea base.
 - Los resultados son una ayuda para el facturador; no reemplazan la auditoría oficial de cuentas médicas.

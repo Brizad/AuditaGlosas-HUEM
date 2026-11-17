@@ -387,7 +387,10 @@ cifras escritas, una leyenda y una tabla con los mismos datos.
 | Código malicioso dentro de un lote (XSS) | El frontend nunca usa `innerHTML`: todo dato se escribe como texto con la función `h()`. Además el servidor envía una política de contenido (CSP) que solo permite scripts y estilos propios | `js/comun.js`, `principal.py`, `test_paginas.py` |
 | Fórmulas maliciosas al abrir el CSV en Excel | Las celdas que empiezan por `=`, `+`, `-` o `@` se exportan con un apóstrofo delante | `servicios/reportes.py` |
 | Inyección SQL | Todas las consultas pasan por SQLAlchemy con parámetros; no se arma SQL con texto | `servicios/` |
-| Archivos enormes | Máximo 20 MB por petición y 5.000 facturas por lote | `principal.py`, `esquemas.py` |
+| Archivos enormes | Máximo 20 MB por petición y 5.000 facturas por lote. Una petición que no declara su tamaño (envío «por trozos») se rechaza con 411, porque no se le podría aplicar el límite | `principal.py`, `esquemas.py` |
+| Que otra página abierta en el mismo navegador modifique datos (CSRF) | Como no hay inicio de sesión, el servidor revisa de dónde sale cada petición que cambia datos (`POST`, `PUT`, `DELETE`): el navegador lo informa en las cabeceras `Sec-Fetch-Site` y `Origin`, que una página no puede falsificar. Si no sale de las páginas del sistema responde 403. Los programas que no son navegadores (curl, scripts) no envían esas cabeceras y pasan | `principal.py` (`proteger_cambios`), `test_seguridad.py` |
+| Datos que la base de datos no puede guardar | Los textos opcionales del RIPS tienen el mismo largo máximo que su columna, se rechaza el carácter nulo, los identificadores de la dirección van de 1 a 2.147.483.647 y el valor de un hallazgo se topa en el máximo de la columna. SQLite lo toleraría; PostgreSQL no | `esquemas.py`, `rutas/comunes.py`, `servicios/validacion.py` |
+| Mostrar detalles técnicos cuando algo falla | Si la base de datos falla se responde un mensaje en español y el detalle queda solo en el registro del servidor. Los errores «no existe» y «operación no permitida» también salen en español | `principal.py` |
 | Que otra página incruste el sistema | Cabeceras `X-Frame-Options: DENY` y `frame-ancestors 'none'` | `principal.py` |
 
 Lo que **no** tiene esta versión: inicio de sesión, roles ni cifrado propio (HTTPS lo pone el servidor donde se
@@ -461,12 +464,18 @@ memoria que se crea vacía para cada prueba.
 | Integral | Lote demo: 12 facturas, 5 aptas, 7 con inconsistencias, $260.000 | Por el motor, por los servicios y por la API |
 | Generador | El motor detecta exactamente los errores sembrados | 5 semillas de 300 facturas y los dos lotes de `data/` |
 | Frontend | Las páginas responden, enlazan archivos que existen y cumplen la política de seguridad | Revisión del HTML y del JavaScript |
+| Seguridad | Cambios pedidos desde otro sitio, peticiones sin tamaño, textos demasiado largos, identificadores imposibles y errores sin detalles técnicos | Cliente de pruebas con las cabeceras que enviaría un navegador |
 
 ## 13. Limitaciones conocidas y trabajo futuro
 
 - Del RIPS se leen **consultas, procedimientos y medicamentos**. Urgencias, hospitalización, recién nacidos y otros
   servicios (Res. 2275 de 2023) quedan para una siguiente versión.
-- No hay inicio de sesión ni roles todavía.
+- No hay inicio de sesión ni roles todavía. La revisión del origen de las peticiones (sección 9) evita que otra página
+  modifique datos, pero no reemplaza un inicio de sesión: cualquiera en la red interna puede usar el sistema.
+- La documentación automática (`/docs`) carga sus archivos desde internet; sin conexión no se ve. El resto del sistema
+  no depende de internet.
+- Con SQLite solo una persona puede escribir a la vez (cargar o validar un lote). Para uso simultáneo se debe usar
+  PostgreSQL, que está configurado por `DATABASE_URL` pero aún no se ha probado en un servidor real.
 - Las tablas se crean automáticamente al arrancar. Cuando el modelo cambie con datos reales en producción convendrá
   usar migraciones (Alembic).
 - "Factura glosada" se mide como *factura con inconsistencias detectadas por el sistema*, porque aún no se reciben

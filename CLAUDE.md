@@ -12,7 +12,7 @@ Docente: Harvey Michael Gamboa Peña.
 
 ## Estado actual (Sprint 1: sistema completo en pull requests #9 a #17, pendientes de revisión)
 - `backend/`: FastAPI + SQLAlchemy (SQLite por defecto, PostgreSQL con `DATABASE_URL`). Se ejecuta desde `backend/`:
-  `python -m scripts.carga_inicial` · `uvicorn main:app --reload` · `python -m pytest` (329 pruebas).
+  `python -m scripts.carga_inicial` · `uvicorn main:app --reload` · `python -m pytest` (359 pruebas).
   - `app/reglas/`: motor de reglas. Cada regla es una clase con `@registrar`; no consulta la base de datos.
   - `app/servicios/`: lotes, validación, reportes, indicadores y prueba z. `app/rutas/`: endpoints de `/api`.
   - `scripts/generar_lote.py`: lotes sintéticos con errores conocidos (semilla fija).
