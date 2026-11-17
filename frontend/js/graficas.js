@@ -10,7 +10,7 @@
      enfocarla con el teclado. Debajo de cada gráfica hay una tabla con los
      mismos datos.
    ===================================================================== */
-import { h, svg, poner, numero, porcentaje } from "./comun.js";
+import { h, svg, poner, numero, porcentaje, pesos } from "./comun.js";
 
 /**
  * Barras horizontales de una sola serie.
@@ -26,6 +26,20 @@ export function barras(contenedor, filas) {
         : null),
     h("div", { class: "cifra" }, fila.cifra),
   ])));
+}
+
+/**
+ * Barras de hallazgos por grupo de causal (la usan Inicio, Resultados y Reportes).
+ * grupos: [{ grupo, nombre_grupo, hallazgos, facturas_afectadas, valor_hallazgos }]
+ */
+export function barrasDeCausales(contenedor, grupos) {
+  barras(contenedor, grupos.map((grupo) => ({
+    codigo: grupo.grupo,
+    nombre: grupo.nombre_grupo,
+    valor: grupo.hallazgos,
+    cifra: h("b", null, numero(grupo.hallazgos)),
+    globo: `${grupo.nombre_grupo}\n${numero(grupo.hallazgos)} hallazgos en ${numero(grupo.facturas_afectadas)} facturas\n${pesos(grupo.valor_hallazgos)}`,
+  })));
 }
 
 /**

@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from app.configuracion import ARCHIVO_CATALOGO, ARCHIVO_CONTRATOS, CARPETA_DATOS
+from app.servicios.carga_inicial import leer_json
 
 # ---------------------------------------------------------------------------
 # Qué errores se siembran y con qué frecuencia
@@ -294,11 +295,6 @@ class Generador:
 # ---------------------------------------------------------------------------
 # Archivos
 # ---------------------------------------------------------------------------
-def leer_json(ruta: Path):
-    with open(ruta, encoding="utf-8-sig") as archivo:
-        return json.load(archivo)
-
-
 def escribir_json(ruta: Path, contenido) -> None:
     ruta.parent.mkdir(parents=True, exist_ok=True)
     with open(ruta, "w", encoding="utf-8", newline="\n") as archivo:

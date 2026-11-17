@@ -76,6 +76,14 @@ def tarifa_a_salida(tarifa: Tarifa, eps: Eps, descripciones: dict[str, str]) -> 
     )
 
 
+def autorizaciones_a_salida(eps: Eps, descripciones: dict[str, str]) -> list[AutorizacionSalida]:
+    """Servicios que la EPS exige autorizar, cada uno con su descripción del catálogo."""
+    return [
+        AutorizacionSalida(codigo_servicio=a.codigo_servicio, descripcion=descripciones.get(a.codigo_servicio))
+        for a in eps.autorizaciones
+    ]
+
+
 # ---------------------------------------------------------------------------
 # EPS
 # ---------------------------------------------------------------------------
@@ -109,10 +117,7 @@ def ver_eps(codigo: str, sesion: SesionBD):
     return EpsDetalleSalida(
         **base.model_dump(),
         tarifas=[tarifa_a_salida(tarifa, eps, descripciones) for tarifa in eps.tarifas],
-        autorizaciones=[
-            AutorizacionSalida(codigo_servicio=a.codigo_servicio, descripcion=descripciones.get(a.codigo_servicio))
-            for a in eps.autorizaciones
-        ],
+        autorizaciones=autorizaciones_a_salida(eps, descripciones),
     )
 
 
@@ -202,12 +207,7 @@ def eliminar_tarifa(codigo: str, codigo_servicio: str, sesion: SesionBD):
     summary="Listar los servicios que exigen autorización",
 )
 def listar_autorizaciones(codigo: str, sesion: SesionBD):
-    eps = buscar_eps(sesion, codigo)
-    descripciones = descripciones_del_catalogo(sesion)
-    return [
-        AutorizacionSalida(codigo_servicio=a.codigo_servicio, descripcion=descripciones.get(a.codigo_servicio))
-        for a in eps.autorizaciones
-    ]
+    return autorizaciones_a_salida(buscar_eps(sesion, codigo), descripciones_del_catalogo(sesion))
 
 
 @enrutador.post(

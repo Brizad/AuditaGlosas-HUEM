@@ -3,7 +3,7 @@ import {
   api, h, poner, porId, iniciar, avisar, vacio, parametro, pesos, numero, porcentaje,
   fechaCorta, periodoLegible, pildoraEstado, etiquetaRegla, TIPOS_LOTE,
 } from "./comun.js";
-import { barras, barrasPorEstado, barraDeEstados } from "./graficas.js";
+import { barrasDeCausales, barrasPorEstado, barraDeEstados } from "./graficas.js";
 
 let idLote = null;
 let facturas = [];   // facturas del lote, para filtrarlas sin volver a pedirlas
@@ -81,13 +81,7 @@ async function mostrarLote() {
   // Gráficas
   barraDeEstados(porId("g-estados"), resumen);
   if (causales.total_hallazgos) {
-    barras(porId("g-causales"), causales.grupos.map((grupo) => ({
-      codigo: grupo.grupo,
-      nombre: grupo.nombre_grupo,
-      valor: grupo.hallazgos,
-      cifra: h("b", null, numero(grupo.hallazgos)),
-      globo: `${grupo.nombre_grupo}\n${numero(grupo.hallazgos)} hallazgos en ${numero(grupo.facturas_afectadas)} facturas\n${pesos(grupo.valor_hallazgos)}`,
-    })));
+    barrasDeCausales(porId("g-causales"), causales.grupos);
   } else {
     poner(porId("g-causales"), vacio(validado ? "Sin hallazgos" : "Sin validar",
       validado ? "Ninguna factura incumple las reglas activas." : "Valide el lote para ver los hallazgos."));

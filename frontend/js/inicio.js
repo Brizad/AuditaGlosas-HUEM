@@ -1,6 +1,6 @@
 /* Página de inicio: indicadores generales y últimos lotes. */
 import { api, h, poner, porId, iniciar, vacio, pesos, numero, porcentaje, contar } from "./comun.js";
-import { barras, barraDeEstados } from "./graficas.js";
+import { barrasDeCausales, barraDeEstados } from "./graficas.js";
 import { tablaDeLotes } from "./lotes.js";
 
 iniciar(async () => {
@@ -35,12 +35,6 @@ iniciar(async () => {
   }
 
   barraDeEstados(porId("g-estados"), resumen);
-  barras(porId("g-causales"), datos.hallazgos_por_grupo.map((grupo) => ({
-    codigo: grupo.grupo,
-    nombre: grupo.nombre_grupo,
-    valor: grupo.hallazgos,
-    cifra: h("b", null, numero(grupo.hallazgos)),
-    globo: `${grupo.nombre_grupo}\n${numero(grupo.hallazgos)} hallazgos en ${numero(grupo.facturas_afectadas)} facturas\n${pesos(grupo.valor_hallazgos)}`,
-  })));
+  barrasDeCausales(porId("g-causales"), datos.hallazgos_por_grupo);
   poner(porId("lotes"), tablaDeLotes(datos.ultimos_lotes));
 });

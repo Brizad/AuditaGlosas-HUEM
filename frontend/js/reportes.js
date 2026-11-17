@@ -1,6 +1,6 @@
 /* Página «Reportes»: hallazgos por causal y por EPS, con filtros y exportación a CSV (HU-05). */
 import { api, h, poner, porId, iniciar, avisar, vacio, pesos, numero, porcentaje, periodoLegible } from "./comun.js";
-import { barras, barrasPorEstado } from "./graficas.js";
+import { barrasDeCausales, barrasPorEstado } from "./graficas.js";
 
 /** Arma «?lote_id=1&periodo=2026-06» con los filtros que estén elegidos. */
 function consulta() {
@@ -79,13 +79,7 @@ async function mostrar() {
     return;
   }
 
-  barras(porId("g-causales"), causales.grupos.map((grupo) => ({
-    codigo: grupo.grupo,
-    nombre: grupo.nombre_grupo,
-    valor: grupo.hallazgos,
-    cifra: h("b", null, numero(grupo.hallazgos)),
-    globo: `${grupo.nombre_grupo}\n${numero(grupo.hallazgos)} hallazgos en ${numero(grupo.facturas_afectadas)} facturas\n${pesos(grupo.valor_hallazgos)}`,
-  })));
+  barrasDeCausales(porId("g-causales"), causales.grupos);
   poner(porId("t-causales"), tablaCausales(causales));
   porId("nota-causal").textContent = causales.valor_hallazgos > riesgo + 0.5
     ? `La suma de los hallazgos (${pesos(causales.valor_hallazgos)}) es mayor que el valor en riesgo (${pesos(riesgo)}) porque un mismo servicio puede tener varios hallazgos y el riesgo de cada factura no supera su total.`
