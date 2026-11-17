@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Línea base y piloto · AuditaGlosas HUEM</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="linea-base">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <div class="titulo-pagina">
+      <div>
+        <h1>Línea base y piloto</h1>
+        <p>Indicador del proyecto: porcentaje de facturas glosadas. Aquí se compara el <b>antes</b> (línea base)
+          con el <b>después</b> (piloto) y se comprueba con una prueba estadística si la reducción es real.</p>
+      </div>
+    </div>
+
+    <div class="alerta aviso">
+      <b>¿Qué cuenta como factura glosada?</b> El sistema revisa antes de radicar, así que todavía no hay respuesta
+      de la EPS. Se cuenta como glosada la factura en la que el sistema encontró al menos una inconsistencia.
+      Si tiene las cifras reales del hospital, puede digitarlas en la prueba z de abajo.
+    </div>
+
+    <section class="tarjeta filtros" aria-label="Filtros">
+      <label class="campo"><span>Tipo de lote</span>
+        <select id="f-tipo">
+          <option value="">Todos los tipos</option>
+          <option value="general">General</option>
+          <option value="linea_base">Línea base</option>
+          <option value="piloto">Piloto</option>
+        </select>
+      </label>
+      <p class="apoyo">El filtro aplica a las tarjetas y a las dos gráficas. La prueba z siempre compara línea base contra piloto.</p>
+    </section>
+
+    <section class="kpis" aria-label="Indicador de glosas">
+      <div class="kpi"><div class="rotulo">Facturas validadas</div><div class="valor" id="k-validadas">—</div><div class="nota" id="k-validadas-nota">&nbsp;</div></div>
+      <div class="kpi mal"><div class="rotulo">Facturas glosadas</div><div class="valor" id="k-porcentaje">—</div><div class="nota" id="k-porcentaje-nota">&nbsp;</div></div>
+      <div class="kpi"><div class="rotulo">Línea base</div><div class="valor" id="k-base">—</div><div class="nota" id="k-base-nota">&nbsp;</div></div>
+      <div class="kpi"><div class="rotulo">Piloto</div><div class="valor" id="k-piloto">—</div><div class="nota" id="k-piloto-nota">&nbsp;</div></div>
+    </section>
+
+    <div class="rejilla-2">
+      <section class="tarjeta">
+        <h2>Facturas glosadas por periodo</h2>
+        <p class="apoyo">Porcentaje de las facturas validadas de cada mes que tienen inconsistencias.</p>
+        <div id="g-periodos"></div>
+        <div id="t-periodos" class="arriba"></div>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Facturas glosadas por causal</h2>
+        <p class="apoyo">Porcentaje de las facturas validadas que incumple cada grupo de causal. No suman 100 %:
+          una factura puede incumplir varias.</p>
+        <div id="g-causales"></div>
+        <div id="t-causales" class="arriba"></div>
+      </section>
+    </div>
+
+    <section class="tarjeta">
+      <h2>Prueba z de diferencia de proporciones</h2>
+      <p class="apoyo">Responde: ¿la proporción de facturas glosadas del piloto es menor que la de la línea base, o la
+        diferencia pudo darse por azar? Hipótesis nula (H0): las dos proporciones son iguales.</p>
+
+      <form id="form-z" class="arriba" novalidate>
+        <div class="rejilla-2">
+          <fieldset class="grupo">
+            <legend>Línea base (antes)</legend>
+            <div class="formulario">
+              <label class="campo"><span>Total de facturas</span>
+                <input type="number" id="z-base-total" min="1" step="1" inputmode="numeric" required></label>
+              <label class="campo"><span>Facturas glosadas</span>
+                <input type="number" id="z-base-glosadas" min="0" step="1" inputmode="numeric" required></label>
+            </div>
+          </fieldset>
+          <fieldset class="grupo">
+            <legend>Piloto (después)</legend>
+            <div class="formulario">
+              <label class="campo"><span>Total de facturas</span>
+                <input type="number" id="z-piloto-total" min="1" step="1" inputmode="numeric" required></label>
+              <label class="campo"><span>Facturas glosadas</span>
+                <input type="number" id="z-piloto-glosadas" min="0" step="1" inputmode="numeric" required></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="formulario opciones-z arriba">
+          <label class="campo"><span>Hipótesis alternativa (H1)</span>
+            <select id="z-hipotesis">
+              <option value="reduce">El piloto reduce la proporción de glosas (una cola)</option>
+              <option value="diferente">Las proporciones son distintas (dos colas)</option>
+            </select>
+          </label>
+          <label class="campo"><span>Nivel de significancia (alfa)</span>
+            <select id="z-alfa">
+              <option value="0.01">0,01</option>
+              <option value="0.05" selected>0,05</option>
+              <option value="0.1">0,10</option>
+            </select>
+          </label>
+          <button class="boton primario" type="submit" id="z-calcular">Calcular</button>
+          <button class="boton" type="button" id="z-usar-lotes">Usar las cifras de los lotes</button>
+        </div>
+        <p class="apoyo arriba-chico" id="z-origen"></p>
+      </form>
+
+      <div id="z-resultado" class="arriba" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/linea-base.js"></script>
+</body>
+</html>

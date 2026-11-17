@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cargar lote · AuditaGlosas HUEM</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/estilos.css">
+</head>
+<body data-pagina="carga">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado" id="encabezado"></header>
+
+  <main class="contenedor" id="contenido">
+    <div class="titulo-pagina">
+      <div>
+        <h1>Cargar lote de facturas</h1>
+        <p>Suba el archivo JSON con las facturas y su RIPS (Res. 2275 de 2023). El sistema revisa la estructura,
+          guarda el lote y lo valida con las reglas activas.</p>
+      </div>
+    </div>
+
+    <section class="tarjeta">
+      <h2><span class="paso">1</span>Elija el archivo</h2>
+      <label class="zona-archivo" id="zona">
+        <input type="file" id="archivo" accept=".json,application/json">
+        <b id="zona-titulo">Haga clic o arrastre aquí el archivo .json</b>
+        <span class="apoyo" id="zona-detalle">Una lista de facturas, cada una con su RIPS. Máximo 5.000 facturas.</span>
+      </label>
+      <div id="vista-previa" hidden></div>
+
+      <details class="arriba" id="ayuda-formato">
+        <summary>¿Qué estructura debe tener el archivo?</summary>
+        <p class="apoyo arriba-chico">Una lista <code>[ ]</code> de facturas como esta (también se acepta
+          <code>{ "facturas": [ ] }</code>). Puede usar <code>data/lote_demo.json</code> como ejemplo.</p>
+<pre>[
+  {
+    "numFactura": "FV-1002",
+    "eps": "EPS-ALFA",
+    "fechaExpedicion": "2026-06-12",
+    "valorTotal": 47500,
+    "items": [
+      { "codigo": "890201", "cantidad": 1, "valorUnitario": 38000 },
+      { "codigo": "903841", "cantidad": 1, "valorUnitario": 9500 }
+    ],
+    "soportes": ["Resultado de laboratorio"],
+    "rips": {
+      "numFactura": "FV-1002",
+      "usuarios": [
+        {
+          "servicios": {
+            "consultas":      [ { "codConsulta": "890201", "vrServicio": 38000, "numAutorizacion": null } ],
+            "procedimientos": [ { "codProcedimiento": "903841", "vrServicio": 9500, "numAutorizacion": null } ],
+            "medicamentos":   [ ]
+          }
+        }
+      ]
+    }
+  }
+]</pre>
+        <p class="apoyo arriba-chico">El documento del paciente, si viene en el RIPS, <b>no se guarda</b>
+          (Ley 1581 de 2012).</p>
+      </details>
+    </section>
+
+    <section class="tarjeta">
+      <h2><span class="paso">2</span>Describa el lote</h2>
+      <form id="formulario" class="formulario" novalidate>
+        <label class="campo">
+          <span>Nombre del lote</span>
+          <input type="text" id="nombre" maxlength="120" required placeholder="Ej.: Radicación junio EPS Alfa">
+        </label>
+        <label class="campo">
+          <span>Tipo</span>
+          <select id="tipo">
+            <option value="general">General</option>
+            <option value="linea_base">Línea base (antes del sistema)</option>
+            <option value="piloto">Piloto (con el sistema)</option>
+          </select>
+        </label>
+        <label class="campo">
+          <span>Periodo <small>(opcional)</small></span>
+          <input type="month" id="periodo">
+        </label>
+        <label class="marcar">
+          <input type="checkbox" id="validar-ya" checked> Validar al cargar
+        </label>
+        <button class="boton primario" type="submit" id="enviar" disabled>Cargar lote</button>
+      </form>
+      <p class="apoyo arriba-chico">Si no indica el periodo, se toma del mes de las facturas.</p>
+      <div id="resultado" class="arriba"></div>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Lotes cargados</h2>
+      <div id="lotes"></div>
+    </section>
+  </main>
+
+  <footer class="pie" id="pie"></footer>
+  <script type="module" src="/static/js/carga.js"></script>
+</body>
+</html>
